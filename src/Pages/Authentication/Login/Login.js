@@ -1,72 +1,82 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   useAuthState,
-  useSignInWithEmailAndPassword,
+  useSignInWithEmailAndPassword
 } from 'react-firebase-hooks/auth';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import auth from '../../../firebase.config';
 
 const Login = () => {
   const [user] = useAuthState(auth);
   const navigate = useNavigate(auth);
+  const location = useLocation();
   const [signInWithEmailAndPassword, , loading, error] =
     useSignInWithEmailAndPassword(auth);
+  const from = location.state?.from?.pathname || '/';
 
   const handleLogin = (e) => {
     e.preventDefault();
     const userEmail = e.target.userEmail.value;
     const userPassword = e.target.userPassword.value;
-    if (userEmail && userPassword) {
-      signInWithEmailAndPassword(userEmail, userPassword);
-    }
-
-    if (user) {
-      console.log(user);
-      navigate('/', { replace: true });
-    }
-
-    console.log(user);
+    signInWithEmailAndPassword(userEmail, userPassword);
   };
+  console.log(error);
+
+  useEffect(() => {
+    if (user) {
+      // console.log('aaa');
+      fetch(`http://localhost:5000/userRole?userEmail=${user.email}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data) {
+            localStorage.setItem('userRole', data.userRole);
+            navigate(from, { replace: true });
+          }
+        });
+    } else {
+      localStorage.removeItem('userRole');
+    }
+  }, [user, navigate, from]);
   return (
     <div>
       <h2 className='text-center text-3xl'>Login</h2>
       <form onSubmit={(e) => handleLogin(e)}>
-        <div class='card mx-auto w-full max-w-sm shadow-2xl bg-base-100'>
-          <div class='card-body'>
-            <div class='form-control'>
-              <label class='label'>
-                <span class='label-text'>Email</span>
+        <div className='card mx-auto w-full max-w-sm shadow-2xl bg-base-100'>
+          <div className='card-body'>
+            <div className='form-control'>
+              <label className='label'>
+                <span className='label-text'>Email</span>
               </label>
               <input
                 type='email'
                 placeholder='email'
-                class='input input-bordered'
+                className='input input-bordered'
                 name='userEmail'
                 required
               />
             </div>
-            <div class='form-control'>
-              <label class='label'>
-                <span class='label-text'>Password</span>
+            <div className='form-control'>
+              <label className='label'>
+                <span className='label-text'>Password</span>
               </label>
               <input
                 type='password'
                 placeholder='password'
-                class='input input-bordered'
+                className='input input-bordered'
                 name='userPassword'
                 required
               />
-              <label class='label'>
+              <label className='label'>
                 <Link
                   to='/resetPassword'
-                  class='label-text-alt link link-hover'
+                  className='label-text-alt link link-hover'
                 >
                   Forgot password?
                 </Link>
               </label>
             </div>
-            <div class='form-control mt-6'>
-              <button type='submit' class='btn bg-blue-200 hover:bg-blue-300'>
+            <div className='form-control'>
+              <button type='submit' className='btn btn-primary'>
                 Login
               </button>
               <p className='pt-2'>
