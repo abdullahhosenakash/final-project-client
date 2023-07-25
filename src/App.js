@@ -7,18 +7,20 @@ import NotFound from './Pages/NotFound/NotFound';
 import PasswordReset from './Pages/Authentication/PasswordReset/PasswordReset';
 import { Toaster } from 'react-hot-toast';
 import RequireAuth from './Pages/Authentication/RequireAuth/RequireAuth';
-import NewArticle from './Pages/NewArticle/NewArticle';
 import AvailableArticles from './Pages/AvailableArticles/AvailableArticles';
 import Article from './Pages/Article/Article';
 import Dashboard from './Pages/Dashboard/Dashboard';
 import Profile from './Pages/Profile/Profile';
+import NewMenuScript from './Pages/NewMenuScript.js/NewMenuScript';
+import Drafts from './Pages/Drafts/Drafts';
+import PreviewMenuscript from './Pages/NewMenuScript.js/PreviewMenuscript';
 
 function App() {
   return (
     <div className='flex'>
       {/* <Header /> */}
       <Dashboard />
-      <div className='absolute left-1/4 right-0 inset-y-0 p-[1%]'>
+      <div className='absolute left-[30%] right-0 inset-y-0 p-[1%]'>
         <Routes>
           <Route
             path='/'
@@ -33,10 +35,18 @@ function App() {
           <Route path='/resetPassword' element={<PasswordReset />} />
 
           <Route
-            path='/newArticle'
+            path='/newMenuscript'
             element={
               <RequireAuth>
-                <NewArticle />
+                <NewMenuScript />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path='/newMenuscript/preview'
+            element={
+              <RequireAuth>
+                <PreviewMenuscript />
               </RequireAuth>
             }
           />
@@ -45,6 +55,14 @@ function App() {
             element={
               <RequireAuth>
                 <AvailableArticles />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path='/drafts'
+            element={
+              <RequireAuth>
+                <Drafts />
               </RequireAuth>
             }
           />

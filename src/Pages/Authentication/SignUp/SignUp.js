@@ -35,7 +35,7 @@ const SignUp = () => {
     if (user) {
       console.log(user);
       const newUser = { userName, userEmail, userRole };
-      fetch('http://localhost:5000/addUser', {
+      fetch('https://final-project-server-k11k.onrender.com/addUser', {
         method: 'post',
         headers: {
           'content-type': 'application/json'
@@ -111,7 +111,7 @@ const SignUp = () => {
               <input
                 type='text'
                 placeholder='Name'
-                className='input input-bordered'
+                className='input input-secondary hover:input-primary focus:input-primary focus:outline-0'
                 name='userName'
                 required
                 onBlur={(e) => setUserName(e.target.value)}
@@ -124,7 +124,7 @@ const SignUp = () => {
               <input
                 type='email'
                 placeholder='Email'
-                className='input input-bordered'
+                className='input input-secondary hover:input-primary focus:input-primary focus:outline-0'
                 name='userEmail'
                 required
                 onBlur={(e) => setUserEmail(e.target.value.toLowerCase())}
@@ -138,7 +138,7 @@ const SignUp = () => {
               <input
                 type='password'
                 placeholder='Password'
-                className='input input-bordered'
+                className='input input-secondary hover:input-primary focus:input-primary focus:outline-0'
                 name='userPassword'
                 required
                 onBlur={(e) => setUserPassword(e.target.value)}
@@ -146,10 +146,7 @@ const SignUp = () => {
             </div>
             <div className='form-control mt-'>
               <p className='text-sm text-red-700 m-0 p-0'>{errorMessage}</p>
-              <button
-                type='submit'
-                className='btn bg-blue-200 hover:bg-blue-300'
-              >
+              <button type='submit' className='btn btn-primary'>
                 Sign Up
               </button>
               <p className='pt-2'>

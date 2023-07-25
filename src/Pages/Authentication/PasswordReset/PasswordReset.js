@@ -2,6 +2,7 @@ import React from 'react';
 import { useSendPasswordResetEmail } from 'react-firebase-hooks/auth';
 import auth from '../../../firebase.config';
 import { toast } from 'react-hot-toast';
+import { Link } from 'react-router-dom';
 
 const PasswordReset = () => {
   const [sendPasswordResetEmail, sending, error] =
@@ -29,16 +30,22 @@ const PasswordReset = () => {
               </label>
               <input
                 type='text'
-                placeholder='email'
-                class='input input-bordered'
+                placeholder='Enter your email'
+                class='input input-secondary hover:input-primary focus:input-primary focus:outline-0'
                 name='userEmail'
                 required
               />
             </div>
             <div class='form-control mt-6'>
-              <button type='submit' class='btn bg-blue-200 hover:bg-blue-300'>
+              <button type='submit' class='btn btn-primary'>
                 Send Password Reset Email
               </button>
+              <p className='pt-1'>
+                Password recovered?{' '}
+                <Link to='/login' className='text-blue-500 cursor-pointer'>
+                  Login
+                </Link>
+              </p>
             </div>
           </div>
         </div>

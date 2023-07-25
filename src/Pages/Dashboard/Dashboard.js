@@ -5,44 +5,19 @@ import auth from '../../firebase.config';
 import { signOut } from 'firebase/auth';
 import { toast } from 'react-hot-toast';
 import CustomNavLink from '../Shared/CustomNavLink';
+import useUserRole from '../../hooks/useUserRole';
 
 const Dashboard = () => {
   const [user] = useAuthState(auth);
-  const [userRole, setUserRole] = useState('');
+  const [userRole] = useUserRole(user?.email);
 
-  useEffect(() => {
-    if (user) {
-      fetch(`http://localhost:5000/userRole?userEmail=${user.email}`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data) {
-            setUserRole(data.userRole);
-          }
-        });
-    } else {
-      setUserRole('');
-    }
-  }, [user]);
+  // console.log(user);
 
-  console.log(userRole);
-
-  // const CustomNavLink = (to,children) => (
-  //   <NavLink
-  //     to={to}
-  //     className={({ isActive }) =>
-  //       isActive
-  //         ? 'btn btn-primary'
-  //         : 'btn bg-slate-600 text-white hover:bg-slate-500 hover:text-white'
-  //     }
-  //   >
-  //     {children}
-  //   </NavLink>
-  // );
   return (
     <div>
-      <div className='bg-secondary fixed inset-y-0 w-1/4 p-[1%]'>
-        <div className='navbar bg-secondary'>
-          <div className='navbar-start'>
+      <div className='bg-secondary fixed inset-y-0 w-[30%] p-[1%]'>
+        <div className='navbar bg-secondary justify-center'>
+          {/* <div className='navbar-start'>
             <div className='dropdown'>
               <label tabIndex={0} className='btn btn-ghost btn-circle'>
                 <svg
@@ -75,13 +50,16 @@ const Dashboard = () => {
                 </li>
               </ul>
             </div>
-          </div>
-          <div className='navbar-center'>
-            <Link to='/' className='btn btn-ghost normal-case text-xl'>
-              Journal
+          </div> */}
+          <div className='navbar-center flex-col'>
+            <Link to='/' className='btn btn-ghost normal-case text-lg'>
+              JOURNAL OF SCIENCE AND TECHNOLOGY
             </Link>
+            <span className='w-3/4 text-center'>
+              Hajee Mohammad Danesh Science and Technology University
+            </span>
           </div>
-          <div className='navbar-end'>
+          {/* <div className='navbar-end'>
             <button className='btn btn-ghost btn-circle'>
               <svg
                 xmlns='http://www.w3.org/2000/svg'
@@ -117,7 +95,7 @@ const Dashboard = () => {
                 <span className='badge badge-xs badge-primary indicator-item'></span>
               </div>
             </button>
-          </div>
+          </div> */}
         </div>
 
         <div className='divider mt-0 mb-2'></div>
@@ -125,14 +103,19 @@ const Dashboard = () => {
         <div className='flex flex-col gap-2'>
           {user ? (
             <>
-              <CustomNavLink to='/'>Home</CustomNavLink>
+              {/* <CustomNavLink to='/'>Home</CustomNavLink> */}
               {userRole === 'author' ? (
-                <CustomNavLink to='/newArticle'>Post an Article</CustomNavLink>
+                <>
+                  <CustomNavLink to='/newMenuscript'>
+                    Add MenuScript as Author
+                  </CustomNavLink>
+                  <CustomNavLink to='/drafts'>View Drafts</CustomNavLink>
+                </>
               ) : (
                 ''
               )}
               <CustomNavLink to='/availableArticles'>
-                See Available Articles
+                MenuScripts as Co-Author
               </CustomNavLink>
               <CustomNavLink to='/profile' className='btn btn-primary'>
                 Profile
@@ -140,7 +123,6 @@ const Dashboard = () => {
               <button
                 className='btn btn-primary'
                 onClick={() => {
-                  setUserRole('');
                   signOut(auth);
                 }}
               >

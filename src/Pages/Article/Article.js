@@ -9,9 +9,9 @@ const Article = () => {
   const { title, description, abstract, date } = article;
 
   useEffect(() => {
-    fetch(`http://localhost:5000/article?articleId=${articleId}`).then((res) =>
-      res.json().then((data) => setArticle(data))
-    );
+    fetch(
+      `https://final-project-server-k11k.onrender.com/article?articleId=${articleId}`
+    ).then((res) => res.json().then((data) => setArticle(data)));
   }, [articleId]);
 
   return (

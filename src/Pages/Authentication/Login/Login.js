@@ -20,21 +20,21 @@ const Login = () => {
     const userPassword = e.target.userPassword.value;
     signInWithEmailAndPassword(userEmail, userPassword);
   };
-  console.log(error);
+  // console.log(error);
 
   useEffect(() => {
     if (user) {
       // console.log('aaa');
-      fetch(`http://localhost:5000/userRole?userEmail=${user.email}`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data) {
-            localStorage.setItem('userRole', data.userRole);
-            navigate(from, { replace: true });
-          }
-        });
-    } else {
-      localStorage.removeItem('userRole');
+      // fetch(`https://final-project-server-k11k.onrender.com/userRole?userEmail=${user.email}`)
+      //   .then((res) => res.json())
+      //   .then((data) => {
+      //     if (data) {
+      //       localStorage.setItem('userRole', data.userRole);
+      navigate(from, { replace: true });
+      // }
+      // });
+      // } else {
+      //   localStorage.removeItem('userRole');
     }
   }, [user, navigate, from]);
   return (
@@ -50,7 +50,7 @@ const Login = () => {
               <input
                 type='email'
                 placeholder='email'
-                className='input input-bordered'
+                className='input input-secondary hover:input-primary focus:input-primary focus:outline-0'
                 name='userEmail'
                 required
               />
@@ -62,7 +62,7 @@ const Login = () => {
               <input
                 type='password'
                 placeholder='password'
-                className='input input-bordered'
+                className='input input-secondary hover:input-primary focus:input-primary focus:outline-0'
                 name='userPassword'
                 required
               />
