@@ -123,11 +123,11 @@ const NewMenuScript = () => {
         authorInfo: {
           firstName,
           lastName,
-          authorEmail: user.email,
           country,
           department,
           institute
         },
+        authorEmail: user.email,
         authorRole,
         authorSequence: { authorInfo1, authorInfo2, authorInfo3 },
         fundingSource,
