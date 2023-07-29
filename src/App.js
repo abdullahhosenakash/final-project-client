@@ -14,7 +14,13 @@ import Profile from './Pages/Profile/Profile';
 import NewMenuScript from './Pages/NewMenuScript.js/NewMenuScript';
 import Drafts from './Pages/Drafts/Drafts';
 import PreviewMenuscript from './Pages/NewMenuScript.js/PreviewMenuscript';
+import { Document, PDFDownloadLink, Page } from '@react-pdf/renderer';
 
+// const MyDoc = () => (
+//   <Document>
+//     <Page>My document data</Page>
+//   </Document>
+// );
 function App() {
   return (
     <div className='flex'>
@@ -86,6 +92,12 @@ function App() {
         </Routes>
         <Toaster containerStyle={{ position: 'absolute' }} />
       </div>
+
+      {/* <PDFDownloadLink document={<MyDoc />} fileName='somename.pdf'>
+        {({ blob, url, loading, error }) =>
+          loading ? 'Loading document...' : 'Download now!'
+        }
+      </PDFDownloadLink> */}
     </div>
   );
 }

@@ -99,22 +99,6 @@ const NewMenuScript = () => {
   const handlePostArticle = (e) => {
     e.preventDefault();
     if (!keywordError) {
-      // const title = e.target.title.value;
-      // const abstract = e.target.abstract.value;
-      // const keywords = e.target.keywords.value;
-      // const description = e.target.description.value;
-      // const firstName = e.target.firstName.value;
-      // const lastName = e.target.lastName.value;
-      // const authorEmail = user.email;
-      // const country = e.target.country.value;
-      // const department = e.target.department.value;
-      // const institute = e.target.institute.value;
-      // const authorRole = e.target.authorRole.value;
-      // const authorInfo1 = e.target.authorInfo1.value;
-      // const authorInfo2 = e.target.authorInfo2.value;
-      // const authorInfo3 = e.target.authorInfo3.value;
-      // const authorSequence = { authorInfo1, authorInfo2, authorInfo3 };
-      // const fundingSource = e.target.fundingSource.value || 'not applicable';
       const newMenuscript = {
         title,
         abstract,
@@ -402,8 +386,8 @@ const NewMenuScript = () => {
                   required
                 >
                   <option value=''>- - Please Select Role - -</option>
-                  <option value='coAuthor'>Co-Author</option>
-                  <option value='correspondingAuthor'>
+                  <option value='Co-Author'>Co-Author</option>
+                  <option value='Corresponding Author'>
                     Corresponding Author
                   </option>
                 </select>

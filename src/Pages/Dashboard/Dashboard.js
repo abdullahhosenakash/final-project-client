@@ -52,7 +52,7 @@ const Dashboard = () => {
             </div>
           </div> */}
           <div className='navbar-center flex-col'>
-            <Link to='/' className='btn btn-ghost normal-case text-lg'>
+            <Link to='/' className='btn btn-ghost normal-case lg:text-lg'>
               JOURNAL OF SCIENCE AND TECHNOLOGY
             </Link>
             <span className='w-3/4 text-center'>
