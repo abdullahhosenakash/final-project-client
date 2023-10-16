@@ -20,7 +20,6 @@ const PreviewMenuscript = () => {
   } = newMenuscript;
   const { firstName, lastName, authorEmail, country, department, institute } =
     authorInfo || {};
-  const { authorInfo1, authorInfo2, authorInfo3 } = authorSequence || {};
 
   const dateArray = new Date().toLocaleString().split(',');
   const date =
@@ -41,9 +40,7 @@ const PreviewMenuscript = () => {
     department,
     institute,
     authorRole,
-    authorInfo1,
-    authorInfo2,
-    authorInfo3,
+    authorSequence,
     fundingSource
   };
 
@@ -150,15 +147,21 @@ const PreviewMenuscript = () => {
           <div>
             <b>Author Sequence:</b> <br />
             <div className='pl-6'>
-              <b>Author 1 : </b>
-              {authorInfo1} <br />
-              <b>Author 2: </b>
-              {authorInfo2} <br />
-              <b>Author 3: </b>
-              {authorInfo3} <br />
+              <table className='table w-1/2 table-zebra text-center'>
+                <tr className='border'>
+                  <th className='border'>Name</th>
+                  <th>Email</th>
+                </tr>
+                {authorSequence?.map((author, index) => (
+                  <tr className='border'>
+                    <td className='border'>{author.authorName}</td>
+                    <td>{author.authorEmail}</td>
+                  </tr>
+                ))}
+              </table>
             </div>
           </div>
-          <p>
+          <p className='mb-2'>
             <b>Funding Source: </b> {fundingSource}
           </p>
           <div className='form-control'>

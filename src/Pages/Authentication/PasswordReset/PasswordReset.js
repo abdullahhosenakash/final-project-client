@@ -34,6 +34,7 @@ const PasswordReset = () => {
                 class='input input-secondary hover:input-primary focus:input-primary focus:outline-0'
                 name='userEmail'
                 required
+                autoComplete='off'
               />
             </div>
             <div class='form-control mt-6'>

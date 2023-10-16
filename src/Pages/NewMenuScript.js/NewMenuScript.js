@@ -3,12 +3,6 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import auth from '../../firebase.config';
 import { toast } from 'react-hot-toast';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faArrowDown,
-  faArrowUp,
-  faXmark
-} from '@fortawesome/free-solid-svg-icons';
 import AuthorTemplate from '../Utilities/AuthorTemplate';
 
 const NewMenuScript = () => {
@@ -17,7 +11,6 @@ const NewMenuScript = () => {
   const [draftError, setDraftError] = useState('');
   const [previewError, setPreviewError] = useState('');
   const [keywordError, setKeywordError] = useState('');
-  const [disableRemoveButton, setDisableRemoveButton] = useState(true);
 
   const location = useLocation();
   const selectedDraft = location.state?.selectedDraft || {};
@@ -33,20 +26,11 @@ const NewMenuScript = () => {
   const [department, setDepartment] = useState(selectedDraft.department || '');
   const [institute, setInstitute] = useState(selectedDraft.institute || '');
   const [authorRole, setAuthorRole] = useState(selectedDraft.authorRole || '');
-  const [authorInfo1, setAuthorInfo1] = useState(
-    selectedDraft.authorInfo1 || ''
-  );
-  const [authorInfo2, setAuthorInfo2] = useState(
-    selectedDraft.authorInfo2 || ''
-  );
-  const [authorInfo3, setAuthorInfo3] = useState(
-    selectedDraft.authorInfo3 || ''
-  );
   const [fundingSource, setFundingSource] = useState(
     selectedDraft.fundingSource || 'not applicable'
   );
+  const [authors, setAuthors] = useState(selectedDraft.authorSequence || []);
   const navigate = useNavigate();
-  const [authors, setAuthors] = useState([{}]);
 
   const id = selectedDraft._id || 'newMenuscript';
 
@@ -75,9 +59,7 @@ const NewMenuScript = () => {
         department,
         institute,
         authorRole,
-        authorInfo1,
-        authorInfo2,
-        authorInfo3,
+        authors,
         fundingSource,
         dateTime,
         authorEmail: user.email
@@ -122,7 +104,7 @@ const NewMenuScript = () => {
         },
         authorEmail: user.email,
         authorRole,
-        authorSequence: { authorInfo1, authorInfo2, authorInfo3 },
+        authorSequence: authors,
         fundingSource,
         dateTime
       };
@@ -172,9 +154,6 @@ const NewMenuScript = () => {
     else if (!department) setPreviewError('Department is required');
     else if (!institute) setPreviewError('Institute is required');
     else if (!authorRole) setPreviewError('Author role is required');
-    else if (!authorInfo1) setPreviewError('First author info is required');
-    else if (!authorInfo2) setPreviewError('Second author info is required');
-    else if (!authorInfo3) setPreviewError('Third author info is required');
     else {
       const newMenuscript = {
         title,
@@ -190,7 +169,7 @@ const NewMenuScript = () => {
           institute
         },
         authorRole,
-        authorSequence: { authorInfo1, authorInfo2, authorInfo3 },
+        authorSequence: authors,
         fundingSource
       };
       navigate('/newMenuscript/preview', {
@@ -199,24 +178,8 @@ const NewMenuScript = () => {
       });
     }
   };
+  console.log(authors);
 
-  const removeAuthor = (index) => {
-    if (authors.length > 1) {
-      const previousAuthors = authors.slice(index + 1);
-      const nextAuthors = authors
-        .toReversed()
-        .slice(authors.length - index)
-        .toReversed();
-      const restAuthors = [...previousAuthors, ...nextAuthors];
-      setAuthors(restAuthors);
-      if (restAuthors.length > 1) {
-        setDisableRemoveButton(false);
-      } else {
-        setDisableRemoveButton(true);
-      }
-    }
-    console.log(authors.length);
-  };
   return (
     <div className='pb-4'>
       <h2 className='text-center text-3xl pt-2'>New Menuscript</h2>
@@ -231,6 +194,14 @@ const NewMenuScript = () => {
                   id='title'
                   className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0'
                   placeholder=''
+                  onChange={(e) => {
+                    setDraftError('');
+                    setPreviewError('');
+                    setTitle(e.target.value);
+                  }}
+                  defaultValue={selectedDraft.title}
+                  required
+                  autoComplete='off'
                 />
                 <label
                   htmlFor='title'
@@ -239,22 +210,6 @@ const NewMenuScript = () => {
                   Title
                 </label>
               </div>
-              {/* <label className='label py-1'>
-                <span className='label-text'>Title</span>
-              </label>
-              <input
-                type='text'
-                placeholder='Title of the Menuscript'
-                className='input input-secondary hover:input-primary focus:input-primary focus:outline-0'
-                name='title'
-                onChange={(e) => {
-                  setDraftError('');
-                  setPreviewError('');
-                  setTitle(e.target.value);
-                }}
-                defaultValue={selectedDraft.title}
-                required
-              /> */}
               <span className='text-red-700 text-sm'>{draftError}</span>
             </div>
             {/* --------------------Abstract--------------- */}
@@ -264,6 +219,12 @@ const NewMenuScript = () => {
                   id='abstract'
                   className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0'
                   placeholder=''
+                  onChange={(e) => {
+                    setAbstract(e.target.value);
+                    setPreviewError('');
+                  }}
+                  defaultValue={selectedDraft.abstract}
+                  required
                 />
                 <label
                   htmlFor='abstract'
@@ -272,21 +233,6 @@ const NewMenuScript = () => {
                   Abstract
                 </label>
               </div>
-              {/* <label className='label py-1'>
-                <span className='label-text'>Abstract</span>
-              </label>
-              <input
-                type='text'
-                placeholder='Abstract of the Menuscript'
-                className='input input-secondary hover:input-primary focus:input-primary focus:outline-0'
-                name='abstract'
-                onChange={(e) => {
-                  setAbstract(e.target.value);
-                  setPreviewError('');
-                }}
-                defaultValue={selectedDraft.abstract}
-                required
-              /> */}
             </div>
             {/* ------------------------Keywords----------------- */}
             <div className='form-control'>
@@ -295,6 +241,18 @@ const NewMenuScript = () => {
                   id='keywords'
                   className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0'
                   placeholder=''
+                  required
+                  onChange={(e) => {
+                    const inputtedKeywords = e.target.value.split(',');
+                    if (inputtedKeywords.length < 5) {
+                      setKeywordError('Add at least five keywords');
+                    } else {
+                      setKeywords(e.target.value);
+                      setKeywordError('');
+                      setPreviewError('');
+                    }
+                  }}
+                  defaultValue={selectedDraft.keywords}
                 />
                 <label
                   htmlFor='keywords'
@@ -303,28 +261,6 @@ const NewMenuScript = () => {
                   Keywords (Separated by Comma)
                 </label>
               </div>
-              {/* <label className='label py-1'>
-                <span className='label-text'>
-                  Keywords (Separated by Comma)
-                </span>
-              </label>
-              <textarea
-                placeholder='Enter keyword (minimum 5)'
-                className='textarea textarea-secondary hover:textarea-primary focus:textarea-primary focus:outline-0'
-                name='keywords'
-                required
-                onChange={(e) => {
-                  const inputtedKeywords = e.target.value.split(',');
-                  if (inputtedKeywords.length < 5) {
-                    setKeywordError('Add at least five keywords');
-                  } else {
-                    setKeywords(e.target.value);
-                    setKeywordError('');
-                    setPreviewError('');
-                  }
-                }}
-                defaultValue={selectedDraft.keywords}
-              /> */}
               <span className='text-sm text-red-700'>{keywordError}</span>
             </div>
             {/* -----------------Description---------------------- */}
@@ -334,6 +270,12 @@ const NewMenuScript = () => {
                   id='description'
                   className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0'
                   placeholder=''
+                  onChange={(e) => {
+                    setDescription(e.target.value);
+                    setPreviewError('');
+                  }}
+                  defaultValue={selectedDraft.description}
+                  required
                 />
                 <label
                   htmlFor='description'
@@ -342,20 +284,6 @@ const NewMenuScript = () => {
                   Description
                 </label>
               </div>
-              {/* <label className='label py-1'>
-                <span className='label-text'>Description</span>
-              </label>
-              <textarea
-                placeholder='Description'
-                className='textarea textarea-secondary hover:textarea-primary focus:textarea-primary focus:outline-0'
-                name='description'
-                onChange={(e) => {
-                  setDescription(e.target.value);
-                  setPreviewError('');
-                }}
-                defaultValue={selectedDraft.description}
-                required
-              /> */}
             </div>
             {/* --------------------Author Info---------------------- */}
             <div className='border-2 border-dashed rounded p-2'>
@@ -369,6 +297,14 @@ const NewMenuScript = () => {
                       id='firstName'
                       className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0'
                       placeholder=''
+                      name='firstName'
+                      onChange={(e) => {
+                        setFirstName(e.target.value);
+                        setPreviewError('');
+                      }}
+                      defaultValue={selectedDraft.firstName}
+                      required
+                      autoComplete='off'
                     />
                     <label
                       htmlFor='firstName'
@@ -377,21 +313,6 @@ const NewMenuScript = () => {
                       First Name
                     </label>
                   </div>
-                  {/* <label className='label py-1'>
-                    <span className='label-text'>First Name</span>
-                  </label>
-                  <input
-                    type='text'
-                    placeholder='First name'
-                    className='input input-secondary hover:input-primary focus:input-primary focus:outline-0 text-sm'
-                    name='firstName'
-                    onChange={(e) => {
-                      setFirstName(e.target.value);
-                      setPreviewError('');
-                    }}
-                    defaultValue={selectedDraft.firstName}
-                    required
-                  /> */}
                 </div>
                 {/* -----------------------last name------------------ */}
                 <div className='form-control w-[49%]'>
@@ -401,6 +322,14 @@ const NewMenuScript = () => {
                       id='lastName'
                       className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0'
                       placeholder=''
+                      name='lastName'
+                      onChange={(e) => {
+                        setLastName(e.target.value);
+                        setPreviewError('');
+                      }}
+                      defaultValue={selectedDraft.lastName}
+                      required
+                      autoComplete='off'
                     />
                     <label
                       htmlFor='lastName'
@@ -409,33 +338,19 @@ const NewMenuScript = () => {
                       Last Name
                     </label>
                   </div>
-                  {/* <label className='label py-1'>
-                    <span className='label-text'>Last Name</span>
-                  </label>
-                  <input
-                    type='text'
-                    placeholder='Last name'
-                    className='input input-secondary hover:input-primary focus:input-primary focus:outline-0 text-sm'
-                    name='lastName'
-                    onChange={(e) => {
-                      setLastName(e.target.value);
-                      setPreviewError('');
-                    }}
-                    defaultValue={selectedDraft.lastName}
-                    required
-                  /> */}
                 </div>
               </div>
               {/* --------------------email-------------------- */}
               <div className='form-control'>
                 <div className='relative'>
                   <input
-                    type='text'
+                    type='email'
                     id='email'
                     className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0'
                     placeholder=''
                     disabled
                     defaultValue={user.email}
+                    autoComplete='off'
                   />
                   <label
                     htmlFor='email'
@@ -444,17 +359,6 @@ const NewMenuScript = () => {
                     Email
                   </label>
                 </div>
-                {/* <label className='label py-1'>
-                  <span className='label-text'>Email</span>
-                </label>
-                <input
-                  type='email'
-                  placeholder='Last name'
-                  className='input input-secondary hover:input-primary focus:input-primary focus:outline-0 text-sm'
-                  name='email'
-                  disabled
-                  defaultValue={user.email}
-                /> */}
               </div>
               {/* --------------------country-------------------- */}
               <div className='form-control mt-2'>
@@ -464,7 +368,14 @@ const NewMenuScript = () => {
                     id='country'
                     className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0'
                     placeholder=''
-                    defaultValue='Bangladesh'
+                    name='country'
+                    onChange={(e) => {
+                      setCountry(e.target.value);
+                      setPreviewError('');
+                    }}
+                    defaultValue={selectedDraft.country}
+                    required
+                    autoComplete='off'
                   />
                   <label
                     htmlFor='country'
@@ -473,21 +384,6 @@ const NewMenuScript = () => {
                     Country
                   </label>
                 </div>
-                {/* <label className='label py-1'>
-                  <span className='label-text'>Country</span>
-                </label>
-                <input
-                  type='text'
-                  placeholder='Country'
-                  className='input input-secondary hover:input-primary focus:input-primary focus:outline-0 text-sm'
-                  name='country'
-                  onChange={(e) => {
-                    setCountry(e.target.value);
-                    setPreviewError('');
-                  }}
-                  defaultValue={selectedDraft.country}
-                  required
-                /> */}
               </div>
               <p className='pt-2 pl-1'>Affiliation</p>
               {/* ---------------------Department--------------------- */}
@@ -498,6 +394,14 @@ const NewMenuScript = () => {
                     id='department'
                     className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0'
                     placeholder=''
+                    name='department'
+                    onChange={(e) => {
+                      setDepartment(e.target.value);
+                      setPreviewError('');
+                    }}
+                    defaultValue={selectedDraft.department}
+                    required
+                    autoComplete='off'
                   />
                   <label
                     htmlFor='department'
@@ -506,21 +410,6 @@ const NewMenuScript = () => {
                     Department
                   </label>
                 </div>
-                {/* <label className='label py-1'>
-                  <span className='label-text'>Department</span>
-                </label>
-                <input
-                  type='text'
-                  placeholder='Enter Department'
-                  className='input input-secondary hover:input-primary focus:input-primary focus:outline-0 text-sm'
-                  name='department'
-                  onChange={(e) => {
-                    setDepartment(e.target.value);
-                    setPreviewError('');
-                  }}
-                  defaultValue={selectedDraft.department}
-                  required
-                /> */}
               </div>
               {/* -------------------institute---------------------- */}
               <div className='form-control mt-2'>
@@ -530,6 +419,14 @@ const NewMenuScript = () => {
                     id='institute'
                     className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0'
                     placeholder=''
+                    name='institute'
+                    onChange={(e) => {
+                      setInstitute(e.target.value);
+                      setPreviewError('');
+                    }}
+                    defaultValue={selectedDraft.institute}
+                    required
+                    autoComplete='off'
                   />
                   <label
                     htmlFor='institute'
@@ -538,21 +435,6 @@ const NewMenuScript = () => {
                     Institute
                   </label>
                 </div>
-                {/* <label className='label py-1'>
-                  <span className='label-text'>Institute</span>
-                </label>
-                <input
-                  type='text'
-                  placeholder='Enter Institute'
-                  className='input input-secondary hover:input-primary focus:input-primary focus:outline-0 text-sm'
-                  name='institute'
-                  onChange={(e) => {
-                    setInstitute(e.target.value);
-                    setPreviewError('');
-                  }}
-                  defaultValue={selectedDraft.institute}
-                  required
-                /> */}
               </div>
               {/* ---------------------author role-------------------------- */}
               <div className='form-control mt-2'>
@@ -581,72 +463,112 @@ const NewMenuScript = () => {
                     Author Role
                   </label>
                 </div>
-                {/* <label className='label py-1'>
-                  <span className='label-text'>Author Role</span>
-                </label>
-                <select
-                  className='select select-secondary hover:select-primary focus:select-primary focus:outline-0 text-sm font-normal'
-                  name='authorRole'
-                  onChange={(e) => {
-                    setAuthorRole(e.target.value);
-                    setPreviewError('');
-                  }}
-                  defaultValue={selectedDraft.authorRole}
-                  required
-                >
-                  <option value=''>- - Please Select Role - -</option>
-                  <option value='Co-Author'>Co-Author</option>
-                  <option value='Corresponding Author'>
-                    Corresponding Author
-                  </option>
-                </select> */}
               </div>
               {/* ------------------------author sequence---------------------- */}
               <div className='form-control'>
                 <label className='label py-1'>
                   <span className='label-text'>Author Sequence</span>
                 </label>
+                {/* ---------------------how many authors?---------------------- */}
+                <div className='form-control my-2'>
+                  <div className='relative'>
+                    <select
+                      id='numberOfAuthors'
+                      className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg peer border hover:select-primary focus:select-primary focus:outline-0 bg-white'
+                      name='authorRole'
+                      value={authors.length}
+                      onChange={(e) => {
+                        const numberOfAuthors = parseInt(e.target.value);
+                        console.log(numberOfAuthors);
+                        switch (numberOfAuthors) {
+                          case 1:
+                            setAuthors([{ authorName: '', authorEmail: '' }]);
+                            break;
+                          case 2:
+                            setAuthors([
+                              { authorName: '', authorEmail: '' },
+                              { authorName: '', authorEmail: '' }
+                            ]);
+                            break;
+                          case 3:
+                            setAuthors([
+                              { authorName: '', authorEmail: '' },
+                              { authorName: '', authorEmail: '' },
+                              { authorName: '', authorEmail: '' }
+                            ]);
+                            break;
+                          case 4:
+                            setAuthors([
+                              { authorName: '', authorEmail: '' },
+                              { authorName: '', authorEmail: '' },
+                              { authorName: '', authorEmail: '' },
+                              { authorName: '', authorEmail: '' }
+                            ]);
+                            break;
+                          case 5:
+                            setAuthors([
+                              { authorName: '', authorEmail: '' },
+                              { authorName: '', authorEmail: '' },
+                              { authorName: '', authorEmail: '' },
+                              { authorName: '', authorEmail: '' },
+                              { authorName: '', authorEmail: '' }
+                            ]);
+                            break;
+                          default:
+                            setAuthors([]);
+                        }
+                      }}
+                      required
+                    >
+                      <option value=''>- - How many authors? - -</option>
+                      <option value='1'>1</option>
+                      <option value='2'>2</option>
+                      <option value='3'>3</option>
+                      <option value='4'>4</option>
+                      <option value='5'>5</option>
+                    </select>
+                    <label
+                      htmlFor='numberOfAuthors'
+                      className='absolute text-sm duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2  peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1 hover:cursor-text'
+                    >
+                      No. of Authors
+                    </label>
+                  </div>
+                </div>
                 <div>
                   {authors.map((author, index) => (
                     <AuthorTemplate
-                      authorName={author.authorName}
-                      authorEmail={author.authorEmail}
                       key={index}
-                      removeAuthor={removeAuthor}
                       index={index}
                       authorsLength={authors.length}
                       setAuthors={setAuthors}
                       authors={authors}
-                      disableRemoveButton={disableRemoveButton}
+                      author={author}
                     />
                   ))}
                 </div>
-                <button
-                  className='btn btn-sm btn-primary flex mx-auto mt-1'
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (authors.length) {
-                      setDisableRemoveButton(false);
-                    }
-                    const authorList = [...authors, {}];
-                    setAuthors(authorList);
-                  }}
-                >
-                  Add Another Author
-                </button>
               </div>
             </div>
+            {/* ----------------------funding source---------------------- */}
             <div className='form-control'>
-              <label className='label py-1'>
-                <span className='label-text'>Funding Source</span>
-              </label>
-              <input
-                placeholder='Enter Funding Source (If any)'
-                className='input input-secondary hover:input-primary focus:input-primary focus:outline-0'
-                name='fundingSource'
-                onChange={(e) => setFundingSource(e.target.value)}
-                defaultValue={selectedDraft.fundingSource}
-              />
+              <div className='relative'>
+                <input
+                  type='text'
+                  id='fundingSource'
+                  className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0'
+                  placeholder=''
+                  name='fundingSource'
+                  onChange={(e) => setFundingSource(e.target.value)}
+                  defaultValue={selectedDraft.fundingSource}
+                  autoComplete='off'
+                />
+                <label
+                  htmlFor='fundingSource'
+                  className='absolute text-sm duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2  peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1 hover:cursor-text'
+                >
+                  Funding Source (If any)
+                </label>
+              </div>
               <span className='text-red-700 text-center'>{keywordError}</span>
               <span className='text-red-700'>{draftError}</span>
               <span className='text-red-700'>{previewError}</span>

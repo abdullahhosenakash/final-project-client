@@ -137,6 +137,7 @@ const SignUp = () => {
                 required
                 onBlur={(e) => setUserEmail(e.target.value.toLowerCase())}
                 onFocus={() => setErrorMessage('')}
+                autoComplete='off'
               />
             </div>
             <div className='form-control'>
@@ -150,6 +151,7 @@ const SignUp = () => {
                 name='userPassword'
                 required
                 onBlur={(e) => setUserPassword(e.target.value)}
+                autoComplete='off'
               />
             </div>
             <div className='form-control mt-'>

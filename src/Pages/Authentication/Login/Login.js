@@ -62,6 +62,7 @@ const Login = () => {
                 className='input input-secondary hover:input-primary focus:input-primary focus:outline-0'
                 name='userEmail'
                 required
+                autoComplete='off'
               />
             </div>
             <div className='form-control'>
@@ -74,6 +75,7 @@ const Login = () => {
                 className='input input-secondary hover:input-primary focus:input-primary focus:outline-0'
                 name='userPassword'
                 required
+                autoComplete='off'
               />
               <label className='label'>
                 <Link

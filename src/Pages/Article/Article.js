@@ -138,6 +138,7 @@ const Article = () => {
                       className='input input-secondary hover:input-primary focus:input-primary focus:outline-0  min-h-10 h-10 py-1'
                       name='reviewerEmail'
                       required
+                      autoComplete='off'
                     />
                   </div>
                   <button
