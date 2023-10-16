@@ -115,7 +115,7 @@ const Dashboard = () => {
                 ''
               )}
               <CustomNavLink to='/availableArticles'>
-                MenuScripts as Co-Author
+                MenuScripts as {userRole === 'author' ? 'Co-Author' : 'Editor'}
               </CustomNavLink>
               <CustomNavLink to='/profile' className='btn btn-primary'>
                 Profile

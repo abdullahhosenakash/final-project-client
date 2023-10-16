@@ -14,7 +14,7 @@ import Profile from './Pages/Profile/Profile';
 import NewMenuScript from './Pages/NewMenuScript.js/NewMenuScript';
 import Drafts from './Pages/Drafts/Drafts';
 import PreviewMenuscript from './Pages/NewMenuScript.js/PreviewMenuscript';
-import { Document, PDFDownloadLink, Page } from '@react-pdf/renderer';
+// import { Document, PDFDownloadLink, Page } from '@react-pdf/renderer';
 
 // const MyDoc = () => (
 //   <Document>

@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   useAuthState,
   useCreateUserWithEmailAndPassword,
+  useSendEmailVerification,
   useUpdateProfile
 } from 'react-firebase-hooks/auth';
 import auth from '../../../firebase.config';
@@ -19,15 +20,20 @@ const SignUp = () => {
   const [createUserWithEmailAndPassword, , loading, userCreationError] =
     useCreateUserWithEmailAndPassword(auth);
   const [updateProfile, updating, updateError] = useUpdateProfile(auth);
+  const [sendEmailVerification, sending, emailVerificationError] =
+    useSendEmailVerification(auth);
 
   const location = useLocation();
   const from = location.state?.from?.pathname || '/';
 
   useEffect(() => {
     const updateUserProfile = async () => {
-      const success = await updateProfile({ displayName: userName });
-      if (success) {
-        toast.success('User Created Successfully');
+      const updateSuccess = await updateProfile({ displayName: userName });
+      const verificationMailSendSuccess = await sendEmailVerification();
+      if (updateSuccess && verificationMailSendSuccess) {
+        toast.success(
+          'User Created Successfully. Email verification mail sent.'
+        );
         navigate(from, { replace: true });
       }
     };
@@ -35,7 +41,8 @@ const SignUp = () => {
     if (user) {
       console.log(user);
       const newUser = { userName, userEmail, userRole };
-      fetch('https://final-project-server-k11k.onrender.com/addUser', {
+      // fetch('https://final-project-server-k11k.onrender.com/addUser', {
+      fetch('http://localhost:5000/addUser', {
         method: 'post',
         headers: {
           'content-type': 'application/json'
@@ -58,7 +65,8 @@ const SignUp = () => {
     userRole,
     userEmail,
     userCreationError,
-    from
+    from,
+    sendEmailVerification
   ]);
 
   const handleSignUp = (e) => {
@@ -74,7 +82,7 @@ const SignUp = () => {
       <form onSubmit={(e) => handleSignUp(e)}>
         <div className='card mx-auto w-full max-w-sm shadow-2xl bg-base-100'>
           <div className='card-body'>
-            <div className='flex justify-around'>
+            <div className='flex gap-3 justify-center'>
               <label className='label cursor-pointer'>
                 <input
                   type='radio'

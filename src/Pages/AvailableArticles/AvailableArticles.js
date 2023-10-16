@@ -4,6 +4,7 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import auth from '../../firebase.config';
 import useUserRole from '../../hooks/useUserRole';
 import downloadIcon from '../../../src/assets/download-icon.png';
+import { Link } from 'react-router-dom';
 import {
   Document,
   PDFDownloadLink,
@@ -24,9 +25,14 @@ const AvailableArticles = () => {
 
   useEffect(() => {
     const authorLink = `http://localhost:5000/authorArticles?authorEmail=${user?.email}`;
-    const editorLink =
-      'https://final-project-server-k11k.onrender.com/articles';
-    fetch(userRole === 'author' ? authorLink : editorLink)
+    const editorLink = 'http://localhost:5000/articles';
+    fetch(
+      userRole === 'author'
+        ? authorLink
+        : userRole === 'editor'
+        ? editorLink
+        : ''
+    )
       .then((res) => res.json())
       .then((data) => setMenuscripts(data));
   }, [user, userRole]);
@@ -50,11 +56,16 @@ const AvailableArticles = () => {
           <thead className='bg-gray-200 text-slate-900'>
             <tr>
               <th className='w-'>Paper ID</th>
-              <th className='w-[10%]'>Co-Author</th>
+              {userRole === 'author' ? (
+                <th className='w-[10%]'>Co-Author</th>
+              ) : (
+                ''
+              )}
               <th>Title</th>
               <th className='w-[20%]'>Submission Date</th>
               <th className='w-[10%]'>Paper Status</th>
               <th className='w-[15%]'>Decision</th>
+              <th className='w-[10%]'>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -107,13 +118,13 @@ const AvailableArticles = () => {
                         </Page>
                       </Document>
                     }
-                    fileName={`${menuscript.title}.pdf`}
+                    fileName={`Menuscript_${menuscript.menuscriptId}.pdf`}
                   >
                     {({ loading }) =>
                       loading ? (
                         'Loading document...'
                       ) : (
-                        <button>
+                        <button className='w-5'>
                           <img
                             src={downloadIcon}
                             alt='Download Icon'
@@ -124,15 +135,28 @@ const AvailableArticles = () => {
                     }
                   </PDFDownloadLink>
                 </td>
-                <td>
-                  {menuscript?.authorSequence?.authorInfo1},{' '}
-                  {menuscript?.authorSequence?.authorInfo2},{' '}
-                  {menuscript?.authorSequence?.authorInfo3}
-                </td>
+                {userRole === 'author' ? (
+                  <td>
+                    {menuscript?.authorSequence?.authorInfo1},{' '}
+                    {menuscript?.authorSequence?.authorInfo2},{' '}
+                    {menuscript?.authorSequence?.authorInfo3}
+                  </td>
+                ) : (
+                  ''
+                )}
                 <td>{menuscript?.title}</td>
                 <td>{menuscript?.dateTime}</td>
                 <td>pending</td>
                 <td>{menuscript?.decision}-</td>
+                <td>
+                  <Link
+                    to={`${menuscript._id}`}
+                    state={{ menuscript: menuscript, userRole: userRole }}
+                    className='btn btn-sm btn-primary'
+                  >
+                    Details
+                  </Link>
+                </td>
               </tr>
             ))}
           </tbody>

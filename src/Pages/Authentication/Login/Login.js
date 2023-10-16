@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   useAuthState,
   useSignInWithEmailAndPassword
@@ -13,6 +13,7 @@ const Login = () => {
   const [signInWithEmailAndPassword, , loading, error] =
     useSignInWithEmailAndPassword(auth);
   const from = location.state?.from?.pathname || '/';
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -23,6 +24,14 @@ const Login = () => {
   // console.log(error);
 
   useEffect(() => {
+    if (error?.message === 'Firebase: Error (auth/user-not-found).') {
+      setErrorMessage('User not found!');
+    } else if (error) {
+      setErrorMessage('Something went wrong. Please try again.');
+    } else {
+      setErrorMessage('');
+    }
+
     if (user) {
       // console.log('aaa');
       // fetch(`https://final-project-server-k11k.onrender.com/userRole?userEmail=${user.email}`)
@@ -36,7 +45,7 @@ const Login = () => {
       // } else {
       //   localStorage.removeItem('userRole');
     }
-  }, [user, navigate, from]);
+  }, [user, navigate, from, error]);
   return (
     <div>
       <h2 className='text-center text-3xl'>Login</h2>
@@ -76,6 +85,7 @@ const Login = () => {
               </label>
             </div>
             <div className='form-control'>
+              <p className='text-red-600 py-1 text-center'>{errorMessage}</p>
               <button type='submit' className='btn btn-primary'>
                 Login
               </button>

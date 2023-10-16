@@ -7,7 +7,9 @@ const Profile = () => {
 
   return (
     <div>
-      <h2 className='text-center text-3xl'>{user?.displayName}</h2>
+      <h2 className='text-center text-3xl'>
+        Welcome to your profile {user?.displayName}
+      </h2>
     </div>
   );
 };

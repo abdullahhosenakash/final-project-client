@@ -3,6 +3,13 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import auth from '../../firebase.config';
 import { toast } from 'react-hot-toast';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faArrowDown,
+  faArrowUp,
+  faXmark
+} from '@fortawesome/free-solid-svg-icons';
+import AuthorTemplate from '../Utilities/AuthorTemplate';
 
 const NewMenuScript = () => {
   const [user] = useAuthState(auth);
@@ -10,6 +17,7 @@ const NewMenuScript = () => {
   const [draftError, setDraftError] = useState('');
   const [previewError, setPreviewError] = useState('');
   const [keywordError, setKeywordError] = useState('');
+  const [disableRemoveButton, setDisableRemoveButton] = useState(true);
 
   const location = useLocation();
   const selectedDraft = location.state?.selectedDraft || {};
@@ -38,8 +46,9 @@ const NewMenuScript = () => {
     selectedDraft.fundingSource || 'not applicable'
   );
   const navigate = useNavigate();
+  const [authors, setAuthors] = useState([{}]);
 
-  const id = selectedDraft._id || 'noMenuscript';
+  const id = selectedDraft._id || 'newMenuscript';
 
   const dateArray = new Date().toLocaleString().split(',');
   const date =
@@ -75,12 +84,12 @@ const NewMenuScript = () => {
       };
 
       const url =
-        id === 'noMenuscript'
+        id === 'newMenuscript'
           ? 'http://localhost:5000/newDraftMenuscript'
           : `http://localhost:5000/updateDraftMenuscript/${id}`;
 
       fetch(url, {
-        method: id === 'noMenuscript' ? 'post' : 'put',
+        method: id === 'newMenuscript' ? 'post' : 'put',
         headers: {
           'content-type': 'application/json'
         },
@@ -128,7 +137,9 @@ const NewMenuScript = () => {
         .then((res) => res.json())
         .then((data) => {
           if (data.acknowledged) {
-            if (id !== 'noMenuscript') {
+            console.log('uploaded');
+            console.log(id);
+            if (id !== 'newMenuscript') {
               fetch(`http://localhost:5000/deleteDraft/${id}`, {
                 method: 'delete'
               })
@@ -139,6 +150,9 @@ const NewMenuScript = () => {
                     navigate('/availableArticles', { replace: true });
                   }
                 });
+            } else {
+              toast.success('Menuscript uploaded successfully');
+              navigate('/availableArticles', { replace: true });
             }
           }
         });
@@ -185,14 +199,47 @@ const NewMenuScript = () => {
       });
     }
   };
+
+  const removeAuthor = (index) => {
+    if (authors.length > 1) {
+      const previousAuthors = authors.slice(index + 1);
+      const nextAuthors = authors
+        .toReversed()
+        .slice(authors.length - index)
+        .toReversed();
+      const restAuthors = [...previousAuthors, ...nextAuthors];
+      setAuthors(restAuthors);
+      if (restAuthors.length > 1) {
+        setDisableRemoveButton(false);
+      } else {
+        setDisableRemoveButton(true);
+      }
+    }
+    console.log(authors.length);
+  };
   return (
     <div className='pb-4'>
       <h2 className='text-center text-3xl pt-2'>New Menuscript</h2>
       <form onSubmit={(e) => handlePostArticle(e)}>
-        <div className='card mx-auto w-full max-w-2xl shadow-2xl bg-base-100'>
+        <div className='card mx-auto w-full max-w-3xl shadow-2xl bg-base-100'>
           <div className='card-body'>
+            {/* -----------------Title----------------- */}
             <div className='form-control'>
-              <label className='label'>
+              <div className='relative'>
+                <input
+                  type='text'
+                  id='title'
+                  className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0'
+                  placeholder=''
+                />
+                <label
+                  htmlFor='title'
+                  className='absolute text-sm duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2  peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1 hover:cursor-text'
+                >
+                  Title
+                </label>
+              </div>
+              {/* <label className='label py-1'>
                 <span className='label-text'>Title</span>
               </label>
               <input
@@ -207,11 +254,25 @@ const NewMenuScript = () => {
                 }}
                 defaultValue={selectedDraft.title}
                 required
-              />
+              /> */}
               <span className='text-red-700 text-sm'>{draftError}</span>
             </div>
+            {/* --------------------Abstract--------------- */}
             <div className='form-control'>
-              <label className='label'>
+              <div className='relative'>
+                <textarea
+                  id='abstract'
+                  className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0'
+                  placeholder=''
+                />
+                <label
+                  htmlFor='abstract'
+                  className='absolute text-sm duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2  peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1 hover:cursor-text'
+                >
+                  Abstract
+                </label>
+              </div>
+              {/* <label className='label py-1'>
                 <span className='label-text'>Abstract</span>
               </label>
               <input
@@ -225,10 +286,24 @@ const NewMenuScript = () => {
                 }}
                 defaultValue={selectedDraft.abstract}
                 required
-              />
+              /> */}
             </div>
+            {/* ------------------------Keywords----------------- */}
             <div className='form-control'>
-              <label className='label'>
+              <div className='relative'>
+                <textarea
+                  id='keywords'
+                  className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0'
+                  placeholder=''
+                />
+                <label
+                  htmlFor='keywords'
+                  className='absolute text-sm duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2  peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1 hover:cursor-text'
+                >
+                  Keywords (Separated by Comma)
+                </label>
+              </div>
+              {/* <label className='label py-1'>
                 <span className='label-text'>
                   Keywords (Separated by Comma)
                 </span>
@@ -249,11 +324,25 @@ const NewMenuScript = () => {
                   }
                 }}
                 defaultValue={selectedDraft.keywords}
-              />
+              /> */}
               <span className='text-sm text-red-700'>{keywordError}</span>
             </div>
+            {/* -----------------Description---------------------- */}
             <div className='form-control'>
-              <label className='label'>
+              <div className='relative'>
+                <textarea
+                  id='description'
+                  className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0'
+                  placeholder=''
+                />
+                <label
+                  htmlFor='description'
+                  className='absolute text-sm duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2  peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1 hover:cursor-text'
+                >
+                  Description
+                </label>
+              </div>
+              {/* <label className='label py-1'>
                 <span className='label-text'>Description</span>
               </label>
               <textarea
@@ -266,13 +355,29 @@ const NewMenuScript = () => {
                 }}
                 defaultValue={selectedDraft.description}
                 required
-              />
+              /> */}
             </div>
+            {/* --------------------Author Info---------------------- */}
             <div className='border-2 border-dashed rounded p-2'>
-              Author Info
-              <div className='flex justify-between'>
+              <p className='mb-1'>Author Info</p>
+              <div className='flex justify-between mb-2'>
+                {/* --------------------first name-------------------- */}
                 <div className='form-control w-[49%]'>
-                  <label className='label'>
+                  <div className='relative'>
+                    <input
+                      type='text'
+                      id='firstName'
+                      className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0'
+                      placeholder=''
+                    />
+                    <label
+                      htmlFor='firstName'
+                      className='absolute text-sm duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2  peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1 hover:cursor-text'
+                    >
+                      First Name
+                    </label>
+                  </div>
+                  {/* <label className='label py-1'>
                     <span className='label-text'>First Name</span>
                   </label>
                   <input
@@ -286,10 +391,25 @@ const NewMenuScript = () => {
                     }}
                     defaultValue={selectedDraft.firstName}
                     required
-                  />
+                  /> */}
                 </div>
+                {/* -----------------------last name------------------ */}
                 <div className='form-control w-[49%]'>
-                  <label className='label'>
+                  <div className='relative'>
+                    <input
+                      type='text'
+                      id='lastName'
+                      className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0'
+                      placeholder=''
+                    />
+                    <label
+                      htmlFor='lastName'
+                      className='absolute text-sm duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2  peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1 hover:cursor-text'
+                    >
+                      Last Name
+                    </label>
+                  </div>
+                  {/* <label className='label py-1'>
                     <span className='label-text'>Last Name</span>
                   </label>
                   <input
@@ -303,11 +423,28 @@ const NewMenuScript = () => {
                     }}
                     defaultValue={selectedDraft.lastName}
                     required
-                  />
+                  /> */}
                 </div>
               </div>
+              {/* --------------------email-------------------- */}
               <div className='form-control'>
-                <label className='label'>
+                <div className='relative'>
+                  <input
+                    type='text'
+                    id='email'
+                    className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0'
+                    placeholder=''
+                    disabled
+                    defaultValue={user.email}
+                  />
+                  <label
+                    htmlFor='email'
+                    className='absolute text-sm duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2  peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1 hover:cursor-text'
+                  >
+                    Email
+                  </label>
+                </div>
+                {/* <label className='label py-1'>
                   <span className='label-text'>Email</span>
                 </label>
                 <input
@@ -317,10 +454,26 @@ const NewMenuScript = () => {
                   name='email'
                   disabled
                   defaultValue={user.email}
-                />
+                /> */}
               </div>
-              <div className='form-control'>
-                <label className='label'>
+              {/* --------------------country-------------------- */}
+              <div className='form-control mt-2'>
+                <div className='relative'>
+                  <input
+                    type='text'
+                    id='country'
+                    className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0'
+                    placeholder=''
+                    defaultValue='Bangladesh'
+                  />
+                  <label
+                    htmlFor='country'
+                    className='absolute text-sm duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2  peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1 hover:cursor-text'
+                  >
+                    Country
+                  </label>
+                </div>
+                {/* <label className='label py-1'>
                   <span className='label-text'>Country</span>
                 </label>
                 <input
@@ -334,11 +487,26 @@ const NewMenuScript = () => {
                   }}
                   defaultValue={selectedDraft.country}
                   required
-                />
+                /> */}
               </div>
               <p className='pt-2 pl-1'>Affiliation</p>
-              <div className='form-control'>
-                <label className='label'>
+              {/* ---------------------Department--------------------- */}
+              <div className='form-control mt-1'>
+                <div className='relative'>
+                  <input
+                    type='text'
+                    id='department'
+                    className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0'
+                    placeholder=''
+                  />
+                  <label
+                    htmlFor='department'
+                    className='absolute text-sm duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2  peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1 hover:cursor-text'
+                  >
+                    Department
+                  </label>
+                </div>
+                {/* <label className='label py-1'>
                   <span className='label-text'>Department</span>
                 </label>
                 <input
@@ -352,10 +520,25 @@ const NewMenuScript = () => {
                   }}
                   defaultValue={selectedDraft.department}
                   required
-                />
+                /> */}
               </div>
-              <div className='form-control'>
-                <label className='label'>
+              {/* -------------------institute---------------------- */}
+              <div className='form-control mt-2'>
+                <div className='relative'>
+                  <input
+                    type='text'
+                    id='institute'
+                    className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0'
+                    placeholder=''
+                  />
+                  <label
+                    htmlFor='institute'
+                    className='absolute text-sm duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2  peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1 hover:cursor-text'
+                  >
+                    Institute
+                  </label>
+                </div>
+                {/* <label className='label py-1'>
                   <span className='label-text'>Institute</span>
                 </label>
                 <input
@@ -369,10 +552,36 @@ const NewMenuScript = () => {
                   }}
                   defaultValue={selectedDraft.institute}
                   required
-                />
+                /> */}
               </div>
-              <div className='form-control'>
-                <label className='label'>
+              {/* ---------------------author role-------------------------- */}
+              <div className='form-control mt-2'>
+                <div className='relative'>
+                  <select
+                    id='authorRole'
+                    className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg peer border hover:select-primary focus:select-primary focus:outline-0 bg-white'
+                    name='authorRole'
+                    onChange={(e) => {
+                      setAuthorRole(e.target.value);
+                      setPreviewError('');
+                    }}
+                    defaultValue={selectedDraft.authorRole}
+                    required
+                  >
+                    <option value=''>- - Please Select Role - -</option>
+                    <option value='Co-Author'>Co-Author</option>
+                    <option value='Corresponding Author'>
+                      Corresponding Author
+                    </option>
+                  </select>
+                  <label
+                    htmlFor='authorRole'
+                    className='absolute text-sm duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2  peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1 hover:cursor-text'
+                  >
+                    Author Role
+                  </label>
+                </div>
+                {/* <label className='label py-1'>
                   <span className='label-text'>Author Role</span>
                 </label>
                 <select
@@ -390,54 +599,45 @@ const NewMenuScript = () => {
                   <option value='Corresponding Author'>
                     Corresponding Author
                   </option>
-                </select>
+                </select> */}
               </div>
+              {/* ------------------------author sequence---------------------- */}
               <div className='form-control'>
-                <label className='label'>
-                  <span className='label-text'>
-                    Author Sequence (According to Position)
-                  </span>
+                <label className='label py-1'>
+                  <span className='label-text'>Author Sequence</span>
                 </label>
-                <input
-                  type='text'
-                  placeholder='Enter Author Info'
-                  className='input input-secondary hover:input-primary focus:input-primary focus:outline-0 text-sm mb-2'
-                  name='authorInfo1'
-                  onChange={(e) => {
-                    setAuthorInfo1(e.target.value);
-                    setPreviewError('');
+                <div>
+                  {authors.map((author, index) => (
+                    <AuthorTemplate
+                      authorName={author.authorName}
+                      authorEmail={author.authorEmail}
+                      key={index}
+                      removeAuthor={removeAuthor}
+                      index={index}
+                      authorsLength={authors.length}
+                      setAuthors={setAuthors}
+                      authors={authors}
+                      disableRemoveButton={disableRemoveButton}
+                    />
+                  ))}
+                </div>
+                <button
+                  className='btn btn-sm btn-primary flex mx-auto mt-1'
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (authors.length) {
+                      setDisableRemoveButton(false);
+                    }
+                    const authorList = [...authors, {}];
+                    setAuthors(authorList);
                   }}
-                  defaultValue={selectedDraft.authorInfo1}
-                  required
-                />
-                <input
-                  type='text'
-                  placeholder='Enter Author Info'
-                  className='input input-secondary hover:input-primary focus:input-primary focus:outline-0 text-sm mb-2'
-                  name='authorInfo2'
-                  onChange={(e) => {
-                    setAuthorInfo2(e.target.value);
-                    setPreviewError('');
-                  }}
-                  defaultValue={selectedDraft.authorInfo2}
-                  required
-                />
-                <input
-                  type='text'
-                  placeholder='Enter Author Info'
-                  className='input input-secondary hover:input-primary focus:input-primary focus:outline-0 text-sm'
-                  name='authorInfo3'
-                  onChange={(e) => {
-                    setAuthorInfo3(e.target.value);
-                    setPreviewError('');
-                  }}
-                  defaultValue={selectedDraft.authorInfo3}
-                  required
-                />
+                >
+                  Add Another Author
+                </button>
               </div>
             </div>
             <div className='form-control'>
-              <label className='label'>
+              <label className='label py-1'>
                 <span className='label-text'>Funding Source</span>
               </label>
               <input
