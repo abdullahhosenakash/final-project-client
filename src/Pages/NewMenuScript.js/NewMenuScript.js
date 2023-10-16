@@ -59,7 +59,7 @@ const NewMenuScript = () => {
         department,
         institute,
         authorRole,
-        authors,
+        authorSequence: authors,
         fundingSource,
         dateTime,
         authorEmail: user.email
@@ -225,6 +225,7 @@ const NewMenuScript = () => {
                   }}
                   defaultValue={selectedDraft.abstract}
                   required
+                  autoComplete='off'
                 />
                 <label
                   htmlFor='abstract'
@@ -253,6 +254,7 @@ const NewMenuScript = () => {
                     }
                   }}
                   defaultValue={selectedDraft.keywords}
+                  autoComplete='off'
                 />
                 <label
                   htmlFor='keywords'
@@ -276,6 +278,7 @@ const NewMenuScript = () => {
                   }}
                   defaultValue={selectedDraft.description}
                   required
+                  autoComplete='off'
                 />
                 <label
                   htmlFor='description'

@@ -104,12 +104,18 @@ const Article = () => {
           <div>
             <b>Author Sequence:</b> <br />
             <div className='pl-6'>
-              <b>Author 1 : </b>
-              {authorSequence?.authorInfo1} <br />
-              <b>Author 2: </b>
-              {authorSequence?.authorInfo2} <br />
-              <b>Author 3: </b>
-              {authorSequence?.authorInfo3} <br />
+              <table className='table w-1/2 table-zebra text-center'>
+                <tr className='border'>
+                  <th className='border'>Name</th>
+                  <th>Email</th>
+                </tr>
+                {authorSequence?.map((author, index) => (
+                  <tr className='border'>
+                    <td className='border'>{author.authorName}</td>
+                    <td>{author.authorEmail}</td>
+                  </tr>
+                ))}
+              </table>
             </div>
           </div>
           <p>

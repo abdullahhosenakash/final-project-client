@@ -47,6 +47,8 @@ const AvailableArticles = () => {
     }
   };
 
+  console.log(menuscripts);
+
   return (
     <div className='pb-4'>
       <h2 className='text-center text-3xl my-2'>Menuscripts</h2>
@@ -137,9 +139,9 @@ const AvailableArticles = () => {
                 </td>
                 {userRole === 'author' ? (
                   <td>
-                    {menuscript?.authorSequence?.authorInfo1},{' '}
-                    {menuscript?.authorSequence?.authorInfo2},{' '}
-                    {menuscript?.authorSequence?.authorInfo3}
+                    {/* {menuscript?.authorSequence?.map(
+                      (author) => author.authorName
+                    )} */}
                   </td>
                 ) : (
                   ''
