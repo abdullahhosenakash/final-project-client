@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import Loading from '../Utilities/Loading';
 
-const PreviewMenuscript = () => {
+const PreviewManuscript = () => {
+  const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const newMenuscript = location?.state?.newMenuscript || {};
-  console.log(newMenuscript);
+  const newManuscript = location?.state?.newManuscript;
   const id = location.state?.id || '';
   const {
     title,
@@ -14,11 +16,12 @@ const PreviewMenuscript = () => {
     keywords,
     description,
     authorInfo,
+    authorEmail,
     authorRole,
     authorSequence,
     fundingSource
-  } = newMenuscript;
-  const { firstName, lastName, authorEmail, country, department, institute } =
+  } = newManuscript || {};
+  const { firstName, lastName, country, department, institute } =
     authorInfo || {};
 
   const dateArray = new Date().toLocaleString().split(',');
@@ -46,61 +49,67 @@ const PreviewMenuscript = () => {
 
   const handleDraft = (e) => {
     e.preventDefault();
-    const draftMenuscript = {
+    setSaving(true);
+    const draftManuscript = {
       ...selectedDraft,
       dateTime,
       authorEmail
     };
 
     const url =
-      id === 'noMenuscript'
-        ? 'http://localhost:5000/newDraftMenuscript'
-        : `http://localhost:5000/updateDraftMenuscript/${id}`;
+      id === 'noManuscript'
+        ? 'http://localhost:5000/newDraftManuscript'
+        : `http://localhost:5000/updateDraftManuscript/${id}`;
 
     fetch(url, {
-      method: id === 'noMenuscript' ? 'post' : 'put',
+      method: id === 'noManuscript' ? 'post' : 'put',
       headers: {
         'content-type': 'application/json'
       },
-      body: JSON.stringify(draftMenuscript)
+      body: JSON.stringify(draftManuscript)
     })
       .then((res) => res.json())
       .then((data) => {
         if (data.acknowledged) {
-          toast.success('Menuscript Saved Successfully');
+          toast.success('Manuscript Saved Successfully');
+          setSaving(false);
           navigate('/drafts', { replace: true });
         }
       });
   };
-  const handleMenuscriptUpload = (e) => {
+
+  const handleManuscriptUpload = (e) => {
     e.preventDefault();
-    const newMenuscriptToBeUploaded = { ...newMenuscript, dateTime };
+    setUploading(true);
+    const newManuscriptToBeUploaded = { ...newManuscript, dateTime };
     // https://final-project-server-k11k.onrender.com
-    fetch('http://localhost:5000/newMenuscript', {
+    fetch('http://localhost:5000/newManuscript', {
       method: 'post',
       headers: {
         'content-type': 'application/json'
       },
-      body: JSON.stringify(newMenuscriptToBeUploaded)
+      body: JSON.stringify(newManuscriptToBeUploaded)
     })
       .then((res) => res.json())
       .then((data) => {
         if (data.acknowledged) {
           console.log(id);
-          if (id !== 'noMenuscript') {
+          if (id !== 'noManuscript') {
             fetch(`http://localhost:5000/deleteDraft/${id}`, {
               method: 'delete'
             })
               .then((res) => res.json())
               .then((data) => {
                 if (data.acknowledged) {
-                  toast.success('Menuscript uploaded successfully');
-                  navigate('/availableArticles', { replace: true });
+                  toast.success('Manuscript uploaded successfully');
+                  setUploading(false);
+                  navigate('/manuscriptsAsCoAuthor', { replace: true });
                 }
               });
           } else {
-            toast.success('Menuscript uploaded successfully');
-            navigate('/availableArticles', { replace: true });
+            toast.success('Manuscript uploaded successfully');
+            setUploading(false);
+            navigate('/manuscriptsAsCoAuthor', { replace: true });
           }
         }
       });
@@ -108,8 +117,8 @@ const PreviewMenuscript = () => {
 
   return (
     <div>
-      <h2 className='text-center text-3xl'>Preview Menuscript</h2>
-      <div className='card w-[95%] mx-auto bg-base-100 shadow-xl'>
+      <h2 className='text-center text-3xl'>Preview Manuscript</h2>
+      <div className='card w-[95%] mx-auto bg-base-100 shadow-xl mb-4'>
         <div className='card-body'>
           <h2 className='card-title'>
             Title: <span className='font-normal'>{title}</span>
@@ -147,17 +156,23 @@ const PreviewMenuscript = () => {
           <div>
             <b>Author Sequence:</b> <br />
             <div className='pl-6'>
-              <table className='table w-1/2 table-zebra text-center'>
-                <tr className='border'>
-                  <th className='border'>Name</th>
-                  <th>Email</th>
-                </tr>
-                {authorSequence?.map((author, index) => (
-                  <tr className='border'>
-                    <td className='border'>{author.authorName}</td>
-                    <td>{author.authorEmail}</td>
+              <table className='table w-1/2 table- text-center'>
+                <thead>
+                  <tr className='border border-primary'>
+                    <th className='border border-primary text-black'>Name</th>
+                    <th className='text-black'>Email</th>
                   </tr>
-                ))}
+                </thead>
+                <tbody>
+                  {authorSequence?.map((author, index) => (
+                    <tr className='border border-primary' key={index}>
+                      <td className='border border-primary'>
+                        {author.authorName}
+                      </td>
+                      <td>{author.authorEmail}</td>
+                    </tr>
+                  ))}
+                </tbody>
               </table>
             </div>
           </div>
@@ -167,7 +182,7 @@ const PreviewMenuscript = () => {
           <div className='form-control'>
             <div className='flex justify-around'>
               <Link
-                to={'/newMenuscript'}
+                to={'/newManuscript'}
                 className='btn btn-primary w-[32%]'
                 state={{ selectedDraft: selectedDraft }}
               >
@@ -175,16 +190,18 @@ const PreviewMenuscript = () => {
               </Link>
               <button
                 className='btn btn-primary w-[32%]'
+                disabled={saving}
                 onClick={(e) => handleDraft(e)}
               >
-                Save and Exit
+                Save and Exit {saving ? <Loading /> : ''}
               </button>
 
               <button
                 className='btn btn-primary w-[32%]'
-                onClick={(e) => handleMenuscriptUpload(e)}
+                onClick={(e) => handleManuscriptUpload(e)}
+                disabled={uploading}
               >
-                Menuscript Upload
+                Manuscript Upload {uploading ? <Loading /> : ''}
               </button>
             </div>
           </div>
@@ -194,4 +211,4 @@ const PreviewMenuscript = () => {
   );
 };
 
-export default PreviewMenuscript;
+export default PreviewManuscript;

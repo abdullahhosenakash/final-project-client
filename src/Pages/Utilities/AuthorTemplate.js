@@ -2,13 +2,22 @@ import { faArrowDown, faArrowUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 
-const AuthorTemplate = ({ index, setAuthors, authors, author }) => {
+const AuthorTemplate = ({
+  index,
+  setAuthors,
+  authors,
+  author,
+  setErrorMessage,
+  userEmail,
+  uploading,
+  saving
+}) => {
   const inputFunction = (e, from) => {
     let newAuthor;
     if (from === 'authorName') {
       newAuthor = { ...author, authorName: e.target.value };
     } else if (from === 'authorEmail') {
-      newAuthor = { ...author, authorEmail: e.target.value };
+      newAuthor = { ...author, authorEmail: e.target.value?.toLowerCase() };
     }
     const nextAuthors = authors.slice(index + 1);
     const previousAuthors = authors
@@ -25,10 +34,11 @@ const AuthorTemplate = ({ index, setAuthors, authors, author }) => {
         <input
           type='text'
           id={`authorName${index + 1}`}
-          className='block px-2.5 pb-2.5 pt-4 w-full focus:bg-white text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0'
+          className='block px-2.5 pb-2.5 pt-4 w-full focus:bg-white text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0 disabled:hover:input-secondary'
           placeholder=''
           autoComplete='off'
           value={author.authorName}
+          disabled={uploading || saving}
           onChange={(e) => {
             inputFunction(e, 'authorName');
           }}
@@ -44,12 +54,20 @@ const AuthorTemplate = ({ index, setAuthors, authors, author }) => {
         <input
           type='email'
           id={`authorEmail${index + 1}`}
-          className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0'
+          className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0 disabled:hover:input-secondary'
           placeholder=''
           autoComplete='off'
+          disabled={uploading || saving}
           value={author.authorEmail}
           onChange={(e) => {
-            inputFunction(e, 'authorEmail');
+            if (e.target.value?.toLowerCase() === userEmail) {
+              setErrorMessage(
+                'Your email and any other author email can not be same'
+              );
+            } else {
+              inputFunction(e, 'authorEmail');
+              setErrorMessage('');
+            }
           }}
         />
         <label

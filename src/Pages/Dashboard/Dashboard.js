@@ -1,56 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import auth from '../../firebase.config';
 import { signOut } from 'firebase/auth';
-import { toast } from 'react-hot-toast';
 import CustomNavLink from '../Shared/CustomNavLink';
 import useUserRole from '../../hooks/useUserRole';
+import Loading from '../Utilities/Loading';
 
 const Dashboard = () => {
   const [user] = useAuthState(auth);
   const [userRole] = useUserRole(user?.email);
+  const navigate = useNavigate();
 
-  // console.log(user);
+  // console.log(userRole);
 
   return (
     <div>
       <div className='bg-secondary fixed inset-y-0 w-[30%] p-[1%]'>
         <div className='navbar bg-secondary justify-center'>
-          {/* <div className='navbar-start'>
-            <div className='dropdown'>
-              <label tabIndex={0} className='btn btn-ghost btn-circle'>
-                <svg
-                  xmlns='http://www.w3.org/2000/svg'
-                  className='h-5 w-5'
-                  fill='none'
-                  viewBox='0 0 24 24'
-                  stroke='currentColor'
-                >
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth='2'
-                    d='M4 6h16M4 12h16M4 18h7'
-                  />
-                </svg>
-              </label>
-              <ul
-                tabIndex={0}
-                className='menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-secondary rounded-box w-52'
-              >
-                <li>
-                  <a>Homepage</a>
-                </li>
-                <li>
-                  <a>Portfolio</a>
-                </li>
-                <li>
-                  <a>About</a>
-                </li>
-              </ul>
-            </div>
-          </div> */}
           <div className='navbar-center flex-col'>
             <Link to='/' className='btn btn-ghost normal-case lg:text-lg'>
               JOURNAL OF SCIENCE AND TECHNOLOGY
@@ -104,39 +71,57 @@ const Dashboard = () => {
           {user ? (
             <>
               {/* <CustomNavLink to='/'>Home</CustomNavLink> */}
-              {userRole === 'author' ? (
+              {userRole ? (
                 <>
-                  <CustomNavLink to='/newMenuscript'>
-                    Add MenuScript as Author
+                  {userRole === 'author' ? (
+                    <>
+                      <CustomNavLink to='/newManuscript'>
+                        Add Manuscript as Author
+                      </CustomNavLink>
+                      <CustomNavLink to='/drafts'>View Drafts</CustomNavLink>
+                    </>
+                  ) : (
+                    ''
+                  )}
+                  <CustomNavLink
+                    to={`${
+                      userRole === 'reviewer'
+                        ? '/manuscriptsAsReviewer'
+                        : '/manuscriptsAsCoAuthor'
+                    }`}
+                  >
+                    Manuscripts as{' '}
+                    {userRole === 'reviewer' ? 'Reviewer' : 'Co-Author'}
                   </CustomNavLink>
-                  <CustomNavLink to='/drafts'>View Drafts</CustomNavLink>
+                  <CustomNavLink to='/profile' className='btn btn-primary'>
+                    Profile
+                  </CustomNavLink>
+                  <button
+                    className='btn btn-primary'
+                    onClick={() => {
+                      signOut(auth);
+                      navigate('/', { replace: true });
+                    }}
+                  >
+                    Log Out
+                  </button>
                 </>
               ) : (
-                ''
+                <div>
+                  <p className='text-center text-lg'>Please wait</p>
+                  <Loading loadingStyles='loading-lg block mx-auto mt-4' />
+                </div>
               )}
-              <CustomNavLink to='/availableArticles'>
-                MenuScripts as {userRole === 'author' ? 'Co-Author' : 'Editor'}
-              </CustomNavLink>
-              <CustomNavLink to='/profile' className='btn btn-primary'>
-                Profile
-              </CustomNavLink>
-              <button
-                className='btn btn-primary'
-                onClick={() => {
-                  signOut(auth);
-                }}
-              >
-                Log Out
-              </button>
             </>
           ) : (
             <>
               <p className='text-center text-3xl'>
-                Please login to see options
+                Please{' '}
+                <Link to='/login' className='text-blue-500 hover:underline'>
+                  login
+                </Link>{' '}
+                to see options
               </p>
-              {/* <Link to='/login' className='btn btn-primary'>
-                Login Now
-              </Link> */}
             </>
           )}
         </div>

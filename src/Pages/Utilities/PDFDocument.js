@@ -1,8 +1,8 @@
 import { Document, Page, Text, StyleSheet } from '@react-pdf/renderer';
 import React from 'react';
 
-const PDFDocument = ({ menuscript }) => {
-  console.log(menuscript);
+const PDFDocument = ({ manuscript }) => {
+  console.log(manuscript);
   return (
     <Document>
       <Page>

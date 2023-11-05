@@ -1,19 +1,39 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import auth from '../../firebase.config';
+import auth, { storage } from '../../firebase.config';
 import { toast } from 'react-hot-toast';
 import { useLocation, useNavigate } from 'react-router-dom';
 import AuthorTemplate from '../Utilities/AuthorTemplate';
+import Loading from '../Utilities/Loading';
+import useDateTime from '../../hooks/useDateTime';
+import {
+  getDownloadURL,
+  ref,
+  uploadBytes,
+  uploadBytesResumable
+} from 'firebase/storage';
 
-const NewMenuScript = () => {
+const NewManuscript = () => {
   const [user] = useAuthState(auth);
   const [errorMessage, setErrorMessage] = useState('');
   const [draftError, setDraftError] = useState('');
   const [previewError, setPreviewError] = useState('');
   const [keywordError, setKeywordError] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const location = useLocation();
-  const selectedDraft = location.state?.selectedDraft || {};
+
+  let selectedDraft = {};
+  if (location.state?.selectedDraft) {
+    selectedDraft = location.state?.selectedDraft;
+    // console.log(location.state.selectedDraft);
+  } else if (location.state?.manuscript) {
+    const { authorInfo, ...manuscriptWithoutAuthorInfo } =
+      location.state?.manuscript;
+    selectedDraft = { ...manuscriptWithoutAuthorInfo, ...authorInfo };
+  }
+
   const [title, setTitle] = useState(selectedDraft.title || '');
   const [abstract, setAbstract] = useState(selectedDraft.abstract || '');
   const [keywords, setKeywords] = useState(selectedDraft.keywords || '');
@@ -30,25 +50,51 @@ const NewMenuScript = () => {
     selectedDraft.fundingSource || 'not applicable'
   );
   const [authors, setAuthors] = useState(selectedDraft.authorSequence || []);
+  const [images, setImages] = useState([]);
+  const [imageUrls, setImagesUrls] = useState([]);
+  const [draftFile, setDraftFile] = useState('');
+  const [draftFileUrl, setDraftFileUrl] = useState('');
+  const [coverLetter, setCoverLetter] = useState('');
+  const [coverLetterUrl, setCoverLetterUrl] = useState('');
+  const [imageErrorMessage, setImageErrorMessage] = useState('');
+  const [draftFileErrorMessage, setDraftFileErrorMessage] = useState('');
+  const [coverLetterErrorMessage, setCoverLetterErrorMessage] = useState('');
+  const [fileDateTime, setFileDateTime] = useState('');
   const navigate = useNavigate();
 
-  const id = selectedDraft._id || 'newMenuscript';
+  const id = selectedDraft._id || 'newManuscript';
 
-  const dateArray = new Date().toLocaleString().split(',');
-  const date =
-    dateArray[0].split('/')[1] +
-    '/' +
-    dateArray[0].split('/')[0] +
-    '/' +
-    dateArray[0].split('/')[2];
-  const dateTime = date + ',' + dateArray[1];
+  const [dateTime] = useDateTime();
+  const date = new Date();
+  const dateTimeForFiles = `${date.getFullYear()}${
+    date.getMonth().toString().length === 1
+      ? '0' + date.getMonth()
+      : date.getMonth()
+  }${
+    date.getDate().toString().length === 1
+      ? '0' + date.getDate()
+      : date.getDate()
+  }${
+    date.getHours().toString().length === 1
+      ? '0' + date.getHours()
+      : date.getHours()
+  }${
+    date.getMinutes().toString().length === 1
+      ? '0' + date.getMinutes()
+      : date.getMinutes()
+  }${
+    date.getSeconds().toString().length === 1
+      ? '0' + date.getSeconds()
+      : date.getSeconds()
+  }`;
 
   const handleDraft = (e) => {
     e.preventDefault();
     if (!title) {
       setDraftError('Your draft must have a title!');
     } else {
-      const draftMenuscript = {
+      setSaving(true);
+      const draftManuscript = {
         title,
         abstract,
         keywords,
@@ -64,80 +110,97 @@ const NewMenuScript = () => {
         dateTime,
         authorEmail: user.email
       };
-
+      const newDraft = selectedDraft?.manuscriptId
+        ? { ...selectedDraft, ...draftManuscript, revising: true }
+        : draftManuscript;
       const url =
-        id === 'newMenuscript'
-          ? 'http://localhost:5000/newDraftMenuscript'
-          : `http://localhost:5000/updateDraftMenuscript/${id}`;
+        id === 'newManuscript'
+          ? 'http://localhost:5000/newDraftManuscript'
+          : `http://localhost:5000/updateDraftManuscript/${id}`;
 
       fetch(url, {
-        method: id === 'newMenuscript' ? 'post' : 'put',
+        method: id === 'newManuscript' ? 'post' : 'put',
         headers: {
           'content-type': 'application/json'
         },
-        body: JSON.stringify(draftMenuscript)
+        body: JSON.stringify(newDraft)
       })
         .then((res) => res.json())
         .then((data) => {
           if (data.acknowledged) {
-            toast.success('Menuscript Saved Successfully');
+            toast.success('Manuscript Saved Successfully');
+            setSaving(false);
             navigate('/drafts', { replace: true });
           }
         });
     }
   };
 
-  const handlePostArticle = (e) => {
+  const handleUploadManuscript = (e) => {
     e.preventDefault();
     if (!keywordError) {
-      const newMenuscript = {
-        title,
-        abstract,
-        keywords,
-        description,
-        authorInfo: {
-          firstName,
-          lastName,
-          country,
-          department,
-          institute
-        },
-        authorEmail: user.email,
-        authorRole,
-        authorSequence: authors,
-        fundingSource,
-        dateTime
-      };
-      // https://final-project-server-k11k.onrender.com
-      fetch('http://localhost:5000/newMenuscript', {
-        method: 'post',
-        headers: {
-          'content-type': 'application/json'
-        },
-        body: JSON.stringify(newMenuscript)
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.acknowledged) {
-            console.log('uploaded');
-            console.log(id);
-            if (id !== 'newMenuscript') {
-              fetch(`http://localhost:5000/deleteDraft/${id}`, {
-                method: 'delete'
-              })
-                .then((res) => res.json())
-                .then((data) => {
-                  if (data.acknowledged) {
-                    toast.success('Menuscript uploaded successfully');
-                    navigate('/availableArticles', { replace: true });
-                  }
-                });
-            } else {
-              toast.success('Menuscript uploaded successfully');
-              navigate('/availableArticles', { replace: true });
-            }
+      setUploading(true);
+      // ---------------upload images-------------------
+      let index = 0;
+      const uploadFiles = (i, arr) => {
+        const imgReference = ref(
+          storage,
+          `files/images/${dateTimeForFiles}_manuscript_image_${i + 1}.${
+            images[i]?.name?.split('.')[images[i]?.name?.split('.')?.length - 1]
+          }`
+        );
+        const uploadTask = uploadBytesResumable(imgReference, images[i]);
+        uploadTask.on(
+          'state_changed',
+          (snapshot) => {
+            //
+          },
+          (error) => {
+            //
+          },
+          () => {
+            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+              const newArray = [...arr, downloadURL];
+              if (index + 1 < images.length) {
+                uploadFiles(++index, newArray);
+              } else {
+                setImagesUrls(newArray);
+              }
+            });
           }
+        );
+      };
+      if (index < images.length) {
+        uploadFiles(index, imageUrls);
+      }
+      // --------------------upload draft file---------------------
+      const draftFileReference = ref(
+        storage,
+        `files/draftFilesPDF/${dateTimeForFiles}_manuscript_draft.${
+          draftFile?.name?.split('.')[draftFile?.name?.split('.')?.length - 1]
+        }`
+      );
+      uploadBytes(draftFileReference, draftFile).then(() => {
+        getDownloadURL(draftFileReference).then((url) => {
+          setDraftFileUrl(url);
         });
+      });
+
+      // -------------------upload cover letter----------------------
+      const coverLetterReference = ref(
+        storage,
+        `files/coverLettersPDF/${dateTimeForFiles}_manuscript_cover_letter.${
+          coverLetter?.name?.split('.')[
+            coverLetter?.name?.split('.')?.length - 1
+          ]
+        }`
+      );
+      uploadBytes(coverLetterReference, coverLetter).then(() => {
+        getDownloadURL(coverLetterReference).then((url) => {
+          setCoverLetterUrl(url);
+        });
+      });
+      setFileDateTime(dateTimeForFiles);
     }
   };
 
@@ -155,7 +218,25 @@ const NewMenuScript = () => {
     else if (!institute) setPreviewError('Institute is required');
     else if (!authorRole) setPreviewError('Author role is required');
     else {
-      const newMenuscript = {
+      const newAuthorList = authors?.map((author) => {
+        if (author.authorEmail.toLowerCase() === user?.email) {
+          setErrorMessage(
+            'Your email and any other author email can not be same'
+          );
+          return [];
+        } else {
+          const newAuthor = {
+            authorName: author.authorName,
+            authorEmail: author.authorEmail.toLowerCase()
+          };
+          return newAuthor;
+        }
+      });
+
+      if (errorMessage) {
+        return;
+      }
+      const newManuscript = {
         title,
         abstract,
         keywords,
@@ -163,28 +244,143 @@ const NewMenuScript = () => {
         authorInfo: {
           firstName,
           lastName,
-          authorEmail: user.email,
+
           country,
           department,
           institute
         },
+        authorEmail: user?.email,
         authorRole,
-        authorSequence: authors,
-        fundingSource
+        authorSequence: newAuthorList,
+        fundingSource,
+        paperStatus: 'Pending',
+        decision: '-'
       };
-      navigate('/newMenuscript/preview', {
+      navigate('/newManuscript/preview', {
         replace: true,
-        state: { newMenuscript, id }
+        state: { newManuscript, id }
       });
     }
   };
-  console.log(authors);
+
+  // -------------------upload manuscript-----------------------
+  useEffect(() => {
+    if (images.length === imageUrls.length && draftFileUrl && coverLetterUrl) {
+      const newAuthorList = authors?.map((author) => {
+        if (author.authorEmail.toLowerCase() === user?.email) {
+          setErrorMessage(
+            'Your email and any other author email can not be same'
+          );
+          return {};
+        } else {
+          const newAuthor = {
+            authorName: author.authorName,
+            authorEmail: author.authorEmail.toLowerCase()
+          };
+          return newAuthor;
+        }
+      });
+
+      if (errorMessage) {
+        setUploading(false);
+        return;
+      }
+      const newManuscript = {
+        title,
+        abstract,
+        keywords,
+        description,
+        authorInfo: {
+          firstName,
+          lastName,
+          country,
+          department,
+          institute
+        },
+        authorEmail: user?.email,
+        authorRole,
+        authorSequence: newAuthorList,
+        fundingSource,
+        dateTime,
+        paperStatus: 'Pending',
+        decision: '-',
+        files: {
+          imageUrls,
+          draftFileUrl,
+          coverLetterUrl,
+          dateTimeForFiles: fileDateTime
+        }
+      };
+      // https://final-project-server-k11k.onrender.com
+      fetch('http://localhost:5000/newManuscript', {
+        method: 'post',
+        headers: {
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify(newManuscript)
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data);
+          if (data.acknowledged) {
+            if (id !== 'newManuscript') {
+              fetch(`http://localhost:5000/deleteDraft/${id}`, {
+                method: 'delete'
+              })
+                .then((res) => res.json())
+                .then((data) => {
+                  if (data.acknowledged) {
+                    toast.success('Manuscript uploaded successfully');
+                    setUploading(false);
+                    navigate('/manuscriptsAsCoAuthor', { replace: true });
+                  }
+                });
+            } else {
+              toast.success('Manuscript uploaded successfully');
+              setUploading(false);
+              navigate('/manuscriptsAsCoAuthor', { replace: true });
+            }
+          }
+        });
+    }
+  }, [
+    abstract,
+    authorRole,
+    authors,
+    country,
+    coverLetterUrl,
+    dateTime,
+    department,
+    description,
+    draftFileUrl,
+    errorMessage,
+    firstName,
+    fundingSource,
+    id,
+    imageUrls,
+    images,
+    institute,
+    keywords,
+    lastName,
+    navigate,
+    title,
+    user,
+    fileDateTime
+  ]);
 
   return (
     <div className='pb-4'>
-      <h2 className='text-center text-3xl pt-2'>New Menuscript</h2>
-      <form onSubmit={(e) => handlePostArticle(e)}>
-        <div className='card mx-auto w-full max-w-3xl shadow-2xl bg-base-100'>
+      <h2 className='text-center text-3xl pt-2'>
+        {location.state?.old
+          ? `Revise Manuscript: ${selectedDraft?.manuscriptId}`
+          : 'New Manuscript'}
+      </h2>
+      <form onSubmit={(e) => handleUploadManuscript(e)}>
+        <div
+          className={`card mx-auto w-full max-w-3xl shadow-2xl bg-base-100 mb-10 ${
+            (uploading || saving) && '!opacity-50'
+          }`}
+        >
           <div className='card-body'>
             {/* -----------------Title----------------- */}
             <div className='form-control'>
@@ -192,7 +388,7 @@ const NewMenuScript = () => {
                 <input
                   type='text'
                   id='title'
-                  className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0'
+                  className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0 disabled:hover:input-secondary'
                   placeholder=''
                   onChange={(e) => {
                     setDraftError('');
@@ -202,6 +398,7 @@ const NewMenuScript = () => {
                   defaultValue={selectedDraft.title}
                   required
                   autoComplete='off'
+                  disabled={uploading || saving}
                 />
                 <label
                   htmlFor='title'
@@ -217,7 +414,7 @@ const NewMenuScript = () => {
               <div className='relative'>
                 <textarea
                   id='abstract'
-                  className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0'
+                  className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:textarea-primary focus:textarea-primary focus:outline-0 disabled:hover:textarea-secondary'
                   placeholder=''
                   onChange={(e) => {
                     setAbstract(e.target.value);
@@ -226,6 +423,7 @@ const NewMenuScript = () => {
                   defaultValue={selectedDraft.abstract}
                   required
                   autoComplete='off'
+                  disabled={uploading || saving}
                 />
                 <label
                   htmlFor='abstract'
@@ -240,7 +438,7 @@ const NewMenuScript = () => {
               <div className='relative'>
                 <textarea
                   id='keywords'
-                  className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0'
+                  className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0 disabled:hover:textarea-secondary'
                   placeholder=''
                   required
                   onChange={(e) => {
@@ -255,6 +453,7 @@ const NewMenuScript = () => {
                   }}
                   defaultValue={selectedDraft.keywords}
                   autoComplete='off'
+                  disabled={uploading || saving}
                 />
                 <label
                   htmlFor='keywords'
@@ -270,7 +469,7 @@ const NewMenuScript = () => {
               <div className='relative'>
                 <textarea
                   id='description'
-                  className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0'
+                  className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:textarea-primary focus:textarea-primary focus:outline-0 disabled:hover:textarea-secondary'
                   placeholder=''
                   onChange={(e) => {
                     setDescription(e.target.value);
@@ -279,6 +478,7 @@ const NewMenuScript = () => {
                   defaultValue={selectedDraft.description}
                   required
                   autoComplete='off'
+                  disabled={uploading || saving}
                 />
                 <label
                   htmlFor='description'
@@ -288,6 +488,127 @@ const NewMenuScript = () => {
                 </label>
               </div>
             </div>
+
+            {/* ---------------------files-------------------- */}
+            {/* ---------------image--------------- */}
+            <div className='form-control w-full'>
+              <div className='relative'>
+                <div id='images'>
+                  <input
+                    type='file'
+                    accept='image/*'
+                    multiple
+                    className={`block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:file-input-primary focus:file-input-primary focus:outline-0 disabled:hover:file-input-secondary ${
+                      imageErrorMessage && '!border-red-700'
+                    }`}
+                    onChange={(e) => {
+                      const inputtedFiles = e.target.files;
+                      let filesArray = [];
+                      for (let i = 0; i < inputtedFiles.length; i++) {
+                        if (inputtedFiles[i].size > 1024000) {
+                          setImageErrorMessage(
+                            'Each file size must be less than 1 MB'
+                          );
+                          break;
+                        }
+                        filesArray = [...filesArray, inputtedFiles[i]];
+                      }
+                      setImages(filesArray);
+                    }}
+                    onClick={() => setImageErrorMessage('')}
+                    // defaultValue={selectedDraft.title}
+                    required
+                    disabled={uploading || saving}
+                  />
+                </div>
+                <label
+                  htmlFor='images'
+                  className='absolute duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2  peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1 hover:cursor-text'
+                >
+                  Necessary Images (Any image; Not more than 1 MB)
+                </label>
+              </div>
+              <span className='text-sm text-center text-red-700'>
+                {imageErrorMessage}
+              </span>
+            </div>
+
+            <div className='flex justify-between gap-2'>
+              {/* ---------------draft file--------------- */}
+              <div className='form-control w-full'>
+                <div className='relative'>
+                  <div id='draftFile'>
+                    <input
+                      type='file'
+                      accept='.pdf'
+                      name='draftFile'
+                      className={`block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:file-input-primary focus:file-input-primary focus:outline-0 disabled:hover:file-input-secondary ${
+                        draftFileErrorMessage && '!border-red-700'
+                      }`}
+                      onChange={(e) => {
+                        if (e.target.files[0].size > 5120000) {
+                          setDraftFileErrorMessage(
+                            'The file size must be less than 5 MB'
+                          );
+                        } else {
+                          setDraftFile(e.target.files[0]);
+                        }
+                      }}
+                      onClick={() => setDraftFileErrorMessage('')}
+                      required
+                      disabled={uploading || saving}
+                    />
+                  </div>
+                  <label
+                    htmlFor='draftFile'
+                    className='absolute duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2  peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1 hover:cursor-text'
+                  >
+                    Draft File (PDF; Not more than 5 MB)
+                  </label>
+                </div>
+                <span className='text-sm text-center text-red-700'>
+                  {draftFileErrorMessage}
+                </span>
+              </div>
+
+              {/* ---------------cover letter--------------- */}
+              <div className='form-control w-full'>
+                <div className='relative'>
+                  <div id='coverLetter'>
+                    <input
+                      type='file'
+                      accept='.pdf'
+                      name='coverLetter'
+                      className={`block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:file-input-primary focus:file-input-primary focus:outline-0 disabled:hover:file-input-secondary ${
+                        coverLetterErrorMessage && '!border-red-700'
+                      }`}
+                      onChange={(e) => {
+                        if (e.target.files[0].size > 5120000) {
+                          setCoverLetterErrorMessage(
+                            'The file size must be less than 5 MB'
+                          );
+                        } else {
+                          setCoverLetter(e.target.files[0]);
+                        }
+                      }}
+                      onClick={() => setCoverLetterErrorMessage('')}
+                      required
+                      disabled={uploading || saving}
+                    />
+                  </div>
+                  <label
+                    htmlFor='coverLetter'
+                    className='absolute duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2  peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1 hover:cursor-text'
+                  >
+                    Cover Letter (PDF; Not more than 5 MB)
+                  </label>
+                </div>
+                <span className='text-sm text-center text-red-700'>
+                  {coverLetterErrorMessage}
+                </span>
+              </div>
+            </div>
+
             {/* --------------------Author Info---------------------- */}
             <div className='border-2 border-dashed rounded p-2'>
               <p className='mb-1'>Author Info</p>
@@ -298,7 +619,7 @@ const NewMenuScript = () => {
                     <input
                       type='text'
                       id='firstName'
-                      className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0'
+                      className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0 disabled:hover:input-secondary'
                       placeholder=''
                       name='firstName'
                       onChange={(e) => {
@@ -308,6 +629,7 @@ const NewMenuScript = () => {
                       defaultValue={selectedDraft.firstName}
                       required
                       autoComplete='off'
+                      disabled={uploading || saving}
                     />
                     <label
                       htmlFor='firstName'
@@ -323,7 +645,7 @@ const NewMenuScript = () => {
                     <input
                       type='text'
                       id='lastName'
-                      className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0'
+                      className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0 disabled:hover:input-secondary'
                       placeholder=''
                       name='lastName'
                       onChange={(e) => {
@@ -333,6 +655,7 @@ const NewMenuScript = () => {
                       defaultValue={selectedDraft.lastName}
                       required
                       autoComplete='off'
+                      disabled={uploading || saving}
                     />
                     <label
                       htmlFor='lastName'
@@ -349,7 +672,7 @@ const NewMenuScript = () => {
                   <input
                     type='email'
                     id='email'
-                    className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0'
+                    className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0 disabled:hover:input-secondary'
                     placeholder=''
                     disabled
                     defaultValue={user.email}
@@ -369,7 +692,7 @@ const NewMenuScript = () => {
                   <input
                     type='text'
                     id='country'
-                    className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0'
+                    className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0 disabled:hover:input-secondary'
                     placeholder=''
                     name='country'
                     onChange={(e) => {
@@ -379,6 +702,7 @@ const NewMenuScript = () => {
                     defaultValue={selectedDraft.country}
                     required
                     autoComplete='off'
+                    disabled={uploading || saving}
                   />
                   <label
                     htmlFor='country'
@@ -395,7 +719,7 @@ const NewMenuScript = () => {
                   <input
                     type='text'
                     id='department'
-                    className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0'
+                    className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0 disabled:hover:input-secondary'
                     placeholder=''
                     name='department'
                     onChange={(e) => {
@@ -405,6 +729,7 @@ const NewMenuScript = () => {
                     defaultValue={selectedDraft.department}
                     required
                     autoComplete='off'
+                    disabled={uploading || saving}
                   />
                   <label
                     htmlFor='department'
@@ -420,7 +745,7 @@ const NewMenuScript = () => {
                   <input
                     type='text'
                     id='institute'
-                    className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0'
+                    className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0 disabled:hover:input-secondary'
                     placeholder=''
                     name='institute'
                     onChange={(e) => {
@@ -430,6 +755,7 @@ const NewMenuScript = () => {
                     defaultValue={selectedDraft.institute}
                     required
                     autoComplete='off'
+                    disabled={uploading || saving}
                   />
                   <label
                     htmlFor='institute'
@@ -439,12 +765,12 @@ const NewMenuScript = () => {
                   </label>
                 </div>
               </div>
-              {/* ---------------------author role-------------------------- */}
+              {/* ---------------author role---------------- */}
               <div className='form-control mt-2'>
                 <div className='relative'>
                   <select
                     id='authorRole'
-                    className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg peer border hover:select-primary focus:select-primary focus:outline-0 bg-white'
+                    className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg peer border hover:select-primary focus:select-primary focus:outline-0 bg-white disabled:hover:select-secondary'
                     name='authorRole'
                     onChange={(e) => {
                       setAuthorRole(e.target.value);
@@ -452,8 +778,9 @@ const NewMenuScript = () => {
                     }}
                     defaultValue={selectedDraft.authorRole}
                     required
+                    disabled={uploading || saving}
                   >
-                    <option value=''>- - Please Select Role - -</option>
+                    <option value=''>- - Select Author Role - -</option>
                     <option value='Co-Author'>Co-Author</option>
                     <option value='Corresponding Author'>
                       Corresponding Author
@@ -467,22 +794,21 @@ const NewMenuScript = () => {
                   </label>
                 </div>
               </div>
-              {/* ------------------------author sequence---------------------- */}
+              {/* ----------------author sequence---------------- */}
               <div className='form-control'>
                 <label className='label py-1'>
                   <span className='label-text'>Author Sequence</span>
                 </label>
-                {/* ---------------------how many authors?---------------------- */}
+                {/* -------------number of authors------------- */}
                 <div className='form-control my-2'>
                   <div className='relative'>
                     <select
                       id='numberOfAuthors'
-                      className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg peer border hover:select-primary focus:select-primary focus:outline-0 bg-white'
+                      className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg peer border hover:select-primary focus:select-primary focus:outline-0 bg-white disabled:hover:select-secondary'
                       name='authorRole'
                       value={authors.length}
                       onChange={(e) => {
                         const numberOfAuthors = parseInt(e.target.value);
-                        console.log(numberOfAuthors);
                         switch (numberOfAuthors) {
                           case 1:
                             setAuthors([{ authorName: '', authorEmail: '' }]);
@@ -522,8 +848,11 @@ const NewMenuScript = () => {
                         }
                       }}
                       required
+                      disabled={uploading || saving}
                     >
-                      <option value=''>- - How many authors? - -</option>
+                      <option value=''>
+                        - - Select the number of authors - -
+                      </option>
                       <option value='1'>1</option>
                       <option value='2'>2</option>
                       <option value='3'>3</option>
@@ -543,27 +872,30 @@ const NewMenuScript = () => {
                     <AuthorTemplate
                       key={index}
                       index={index}
-                      authorsLength={authors.length}
                       setAuthors={setAuthors}
                       authors={authors}
                       author={author}
+                      setErrorMessage={setErrorMessage}
+                      saving={saving}
+                      uploading={uploading}
                     />
                   ))}
                 </div>
               </div>
             </div>
-            {/* ----------------------funding source---------------------- */}
+            {/* -------------------funding source------------------ */}
             <div className='form-control'>
               <div className='relative'>
                 <input
                   type='text'
                   id='fundingSource'
-                  className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0'
+                  className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0 disabled:hover:input-secondary'
                   placeholder=''
                   name='fundingSource'
                   onChange={(e) => setFundingSource(e.target.value)}
                   defaultValue={selectedDraft.fundingSource}
                   autoComplete='off'
+                  disabled={uploading || saving}
                 />
                 <label
                   htmlFor='fundingSource'
@@ -577,14 +909,18 @@ const NewMenuScript = () => {
               <span className='text-red-700'>{previewError}</span>
             </div>
 
+            {/* ----------------------actions---------------------- */}
             <div className='form-control'>
-              <p className='text-sm text-red-700 m-0 p-0'>{errorMessage}</p>
+              <p className='text-sm text-center text-red-700 m-0 py-2'>
+                {errorMessage}
+              </p>
               <div className='flex justify-around'>
                 <button
-                  className='btn btn-primary w-[32%]'
+                  className='btn btn-primary w-[32%] disabled:bg-slate-500'
+                  disabled={saving}
                   onClick={(e) => handleDraft(e)}
                 >
-                  Save and Exit
+                  Save and Exit {saving ? <Loading /> : ''}
                 </button>
                 <button
                   className='btn btn-primary w-[32%]'
@@ -594,8 +930,12 @@ const NewMenuScript = () => {
                 >
                   Preview
                 </button>
-                <button type='submit' className='btn btn-primary w-[32%]'>
-                  Menuscript Upload
+                <button
+                  type='submit'
+                  className='btn btn-primary w-[32%] disabled:bg-slate-500'
+                  disabled={uploading}
+                >
+                  Manuscript Upload {uploading ? <Loading /> : ''}
                 </button>
               </div>
             </div>
@@ -606,4 +946,4 @@ const NewMenuScript = () => {
   );
 };
 
-export default NewMenuScript;
+export default NewManuscript;

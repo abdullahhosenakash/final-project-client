@@ -24,3 +24,7 @@ select {
   background-position: right 1rem center;
   background-size: 1em;
 }
+
+tr:hover {
+  background-color: rgb(231, 231, 231);
+}

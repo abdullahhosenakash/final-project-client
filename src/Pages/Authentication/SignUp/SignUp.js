@@ -8,6 +8,7 @@ import {
 } from 'react-firebase-hooks/auth';
 import auth from '../../../firebase.config';
 import { toast } from 'react-hot-toast';
+import Loading from '../../Utilities/Loading';
 
 const SignUp = () => {
   const [user] = useAuthState(auth);
@@ -74,13 +75,16 @@ const SignUp = () => {
     setUserRole(e.target.userRole.value);
     createUserWithEmailAndPassword(userEmail, userPassword);
   };
-  console.log(userCreationError);
 
   return (
     <div>
       <h2 className='text-center text-3xl pt-2'>Sign Up</h2>
       <form onSubmit={(e) => handleSignUp(e)}>
-        <div className='card mx-auto w-full max-w-sm shadow-2xl bg-base-100'>
+        <div
+          className={`card mx-auto w-full max-w-sm shadow-2xl bg-base-100 ${
+            (sending || updating || loading) && '!opacity-50'
+          }`}
+        >
           <div className='card-body'>
             <div className='flex gap-3 justify-center'>
               <label className='label cursor-pointer'>
@@ -90,6 +94,7 @@ const SignUp = () => {
                   className='radio'
                   value='author'
                   defaultChecked
+                  disabled={loading || sending || updating}
                 />
                 <span className='label-text pl-1'>Author</span>
               </label>
@@ -99,6 +104,7 @@ const SignUp = () => {
                   name='userRole'
                   className='radio'
                   value='editor'
+                  disabled={loading || sending || updating}
                 />
                 <span className='label-text pl-1'>Editor</span>
               </label>
@@ -107,57 +113,91 @@ const SignUp = () => {
                   type='radio'
                   name='userRole'
                   className='radio'
-                  value='evaluator'
+                  value='reviewer'
+                  disabled={loading || sending || updating}
                 />
-                <span className='label-text pl-1'>Evaluator</span>
+                <span className='label-text pl-1'>Reviewer</span>
               </label>
             </div>
             <div className='form-control'>
-              <label className='label'>
-                <span className='label-text'>Name</span>
-              </label>
-              <input
-                type='text'
-                placeholder='Name'
-                className='input input-secondary hover:input-primary focus:input-primary focus:outline-0'
-                name='userName'
-                required
-                onBlur={(e) => setUserName(e.target.value)}
-              />
+              <div className='relative'>
+                <input
+                  type='text'
+                  id='userName'
+                  className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0 disabled:hover:input-secondary'
+                  placeholder=''
+                  autoComplete='off'
+                  name='userName'
+                  required
+                  disabled={loading || sending || updating}
+                  onChange={(e) => setUserName(e.target.value)}
+                />
+                <label
+                  htmlFor='userName'
+                  className='absolute text-sm duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2  peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1 hover:cursor-text'
+                >
+                  Name
+                </label>
+              </div>
             </div>
             <div className='form-control'>
-              <label className='label'>
-                <span className='label-text'>Email</span>
-              </label>
-              <input
-                type='email'
-                placeholder='Email'
-                className='input input-secondary hover:input-primary focus:input-primary focus:outline-0'
-                name='userEmail'
-                required
-                onBlur={(e) => setUserEmail(e.target.value.toLowerCase())}
-                onFocus={() => setErrorMessage('')}
-                autoComplete='off'
-              />
+              <div className='relative'>
+                <input
+                  type='email'
+                  id='userEmail'
+                  className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0 disabled:hover:input-secondary'
+                  placeholder=''
+                  name='userEmail'
+                  required
+                  autoComplete='off'
+                  disabled={loading || sending || updating}
+                  onChange={(e) => setUserEmail(e.target.value.toLowerCase())}
+                  onFocus={() => setErrorMessage('')}
+                />
+                <label
+                  htmlFor='userEmail'
+                  className='absolute text-sm duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2  peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1 hover:cursor-text'
+                >
+                  Email
+                </label>
+              </div>
             </div>
             <div className='form-control'>
-              <label className='label'>
-                <span className='label-text'>Password</span>
-              </label>
-              <input
-                type='password'
-                placeholder='Password'
-                className='input input-secondary hover:input-primary focus:input-primary focus:outline-0'
-                name='userPassword'
-                required
-                onBlur={(e) => setUserPassword(e.target.value)}
-                autoComplete='off'
-              />
+              <div className='relative'>
+                <input
+                  type='password'
+                  id='userPassword'
+                  className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0 disabled:hover:input-secondary'
+                  placeholder=''
+                  autoComplete='off'
+                  name='userPassword'
+                  required
+                  disabled={loading || sending || updating}
+                  onChange={(e) => setUserPassword(e.target.value)}
+                />
+                <label
+                  htmlFor='userPassword'
+                  className='absolute text-sm duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2  peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1 hover:cursor-text'
+                >
+                  Password
+                </label>
+              </div>
             </div>
             <div className='form-control mt-'>
               <p className='text-sm text-red-700 m-0 p-0'>{errorMessage}</p>
-              <button type='submit' className='btn btn-primary'>
-                Sign Up
+              <button
+                type='submit'
+                className='btn btn-primary disabled:bg-slate-500'
+                disabled={loading || updating || sending}
+              >
+                {loading || updating || sending ? (
+                  <>
+                    Signing Up
+                    <Loading />{' '}
+                  </>
+                ) : (
+                  'Sign Up'
+                )}
               </button>
               <p className='pt-2'>
                 Already have an account?{' '}

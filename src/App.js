@@ -7,20 +7,14 @@ import NotFound from './Pages/NotFound/NotFound';
 import PasswordReset from './Pages/Authentication/PasswordReset/PasswordReset';
 import { Toaster } from 'react-hot-toast';
 import RequireAuth from './Pages/Authentication/RequireAuth/RequireAuth';
-import AvailableArticles from './Pages/AvailableArticles/AvailableArticles';
-import Article from './Pages/Article/Article';
+import ManuscriptsAsCoAuthor from './Pages/ManuscriptsAsCoAuthor/ManuscriptsAsCoAuthor';
 import Dashboard from './Pages/Dashboard/Dashboard';
 import Profile from './Pages/Profile/Profile';
-import NewMenuScript from './Pages/NewMenuScript.js/NewMenuScript';
 import Drafts from './Pages/Drafts/Drafts';
-import PreviewMenuscript from './Pages/NewMenuScript.js/PreviewMenuscript';
-// import { Document, PDFDownloadLink, Page } from '@react-pdf/renderer';
+import PreviewManuscript from './Pages/NewManuscript/PreviewManuscript';
+import ManuscriptsAsReviewer from './Pages/ManuscriptsAsReviewer/ManuscriptsAsReviewer';
+import NewManuscript from './Pages/NewManuscript/NewManuscript';
 
-// const MyDoc = () => (
-//   <Document>
-//     <Page>My document data</Page>
-//   </Document>
-// );
 function App() {
   return (
     <div className='flex'>
@@ -28,39 +22,49 @@ function App() {
       <Dashboard />
       <div className='absolute left-[30%] right-0 inset-y-0 p-[1%]'>
         <Routes>
-          <Route
-            path='/'
-            element={
-              <RequireAuth>
-                <Home />
-              </RequireAuth>
-            }
-          />
+          <Route path='/' element={<Home />} />
           <Route path='/login' element={<Login />} />
           <Route path='/signUp' element={<SignUp />} />
           <Route path='/resetPassword' element={<PasswordReset />} />
 
           <Route
-            path='/newMenuscript'
+            path='/newManuscript'
             element={
               <RequireAuth>
-                <NewMenuScript />
+                <NewManuscript />
               </RequireAuth>
             }
           />
           <Route
-            path='/newMenuscript/preview'
+            path='/newManuscript/preview'
             element={
               <RequireAuth>
-                <PreviewMenuscript />
+                <PreviewManuscript />
               </RequireAuth>
             }
           />
           <Route
-            path='/availableArticles'
+            path='/manuscriptsAsCoAuthor'
             element={
               <RequireAuth>
-                <AvailableArticles />
+                <ManuscriptsAsCoAuthor />
+              </RequireAuth>
+            }
+          />
+
+          <Route
+            path='/manuscriptsAsCoAuthor/reviseManuscript'
+            element={
+              <RequireAuth>
+                <NewManuscript />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path='/manuscriptsAsReviewer'
+            element={
+              <RequireAuth>
+                <ManuscriptsAsReviewer />
               </RequireAuth>
             }
           />
@@ -69,14 +73,6 @@ function App() {
             element={
               <RequireAuth>
                 <Drafts />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path='/availableArticles/:id'
-            element={
-              <RequireAuth>
-                <Article />
               </RequireAuth>
             }
           />
@@ -92,12 +88,6 @@ function App() {
         </Routes>
         <Toaster containerStyle={{ position: 'absolute' }} />
       </div>
-
-      {/* <PDFDownloadLink document={<MyDoc />} fileName='somename.pdf'>
-        {({ blob, url, loading, error }) =>
-          loading ? 'Loading document...' : 'Download now!'
-        }
-      </PDFDownloadLink> */}
     </div>
   );
 }

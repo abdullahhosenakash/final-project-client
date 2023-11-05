@@ -5,6 +5,7 @@ import {
 } from 'react-firebase-hooks/auth';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import auth from '../../../firebase.config';
+import Loading from '../../Utilities/Loading';
 
 const Login = () => {
   const [user] = useAuthState(auth);
@@ -33,50 +34,59 @@ const Login = () => {
     }
 
     if (user) {
-      // console.log('aaa');
-      // fetch(`https://final-project-server-k11k.onrender.com/userRole?userEmail=${user.email}`)
-      //   .then((res) => res.json())
-      //   .then((data) => {
-      //     if (data) {
-      //       localStorage.setItem('userRole', data.userRole);
       navigate(from, { replace: true });
-      // }
-      // });
-      // } else {
-      //   localStorage.removeItem('userRole');
     }
   }, [user, navigate, from, error]);
+
   return (
     <div>
       <h2 className='text-center text-3xl'>Login</h2>
       <form onSubmit={(e) => handleLogin(e)}>
-        <div className='card mx-auto w-full max-w-sm shadow-2xl bg-base-100'>
+        <div
+          className={`card mx-auto w-full max-w-sm shadow-2xl bg-base-100 ${
+            loading && '!opacity-50'
+          }`}
+        >
           <div className='card-body'>
             <div className='form-control'>
-              <label className='label'>
-                <span className='label-text'>Email</span>
-              </label>
-              <input
-                type='email'
-                placeholder='email'
-                className='input input-secondary hover:input-primary focus:input-primary focus:outline-0'
-                name='userEmail'
-                required
-                autoComplete='off'
-              />
+              <div className='relative'>
+                <input
+                  type='email'
+                  id='userEmail'
+                  className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0 disabled:hover:input-secondary'
+                  placeholder=''
+                  name='userEmail'
+                  required
+                  autoComplete='off'
+                  disabled={loading}
+                />
+                <label
+                  htmlFor='userEmail'
+                  className='absolute text-sm duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2  peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1 hover:cursor-text'
+                >
+                  Email
+                </label>
+              </div>
             </div>
             <div className='form-control'>
-              <label className='label'>
-                <span className='label-text'>Password</span>
-              </label>
-              <input
-                type='password'
-                placeholder='password'
-                className='input input-secondary hover:input-primary focus:input-primary focus:outline-0'
-                name='userPassword'
-                required
-                autoComplete='off'
-              />
+              <div className='relative'>
+                <input
+                  type='password'
+                  id='userPassword'
+                  className='block px-2.5 pb-2.5 pt-4 w-full text-sm rounded-lg appearance-none peer border hover:input-primary focus:input-primary focus:outline-0 disabled:hover:input-secondary'
+                  placeholder=''
+                  name='userPassword'
+                  required
+                  autoComplete='off'
+                  disabled={loading}
+                />
+                <label
+                  htmlFor='userPassword'
+                  className='absolute text-sm duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2  peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1 hover:cursor-text'
+                >
+                  Password
+                </label>
+              </div>
               <label className='label'>
                 <Link
                   to='/resetPassword'
@@ -88,8 +98,19 @@ const Login = () => {
             </div>
             <div className='form-control'>
               <p className='text-red-600 py-1 text-center'>{errorMessage}</p>
-              <button type='submit' className='btn btn-primary'>
-                Login
+              <button
+                type='submit'
+                className='btn btn-primary disabled:bg-slate-500'
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    Logging in
+                    <Loading />{' '}
+                  </>
+                ) : (
+                  'Login'
+                )}
               </button>
               <p className='pt-2'>
                 Don't have an account?{' '}
