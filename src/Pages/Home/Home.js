@@ -3,6 +3,7 @@ import hstuLogo from '../../assets/hstu_logo_.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSquareCheck } from '@fortawesome/free-solid-svg-icons';
 import { faCopyright } from '@fortawesome/free-regular-svg-icons';
+
 const Home = () => {
   return (
     <div>

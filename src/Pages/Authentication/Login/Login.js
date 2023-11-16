@@ -22,7 +22,6 @@ const Login = () => {
     const userPassword = e.target.userPassword.value;
     signInWithEmailAndPassword(userEmail, userPassword);
   };
-  // console.log(error);
 
   useEffect(() => {
     if (error?.message === 'Firebase: Error (auth/user-not-found).') {

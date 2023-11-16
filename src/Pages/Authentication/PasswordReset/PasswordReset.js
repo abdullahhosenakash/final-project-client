@@ -6,8 +6,7 @@ import { Link } from 'react-router-dom';
 import Loading from '../../Utilities/Loading';
 
 const PasswordReset = () => {
-  const [sendPasswordResetEmail, sending, error] =
-    useSendPasswordResetEmail(auth);
+  const [sendPasswordResetEmail, sending] = useSendPasswordResetEmail(auth);
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
@@ -18,7 +17,7 @@ const PasswordReset = () => {
       e.target.reset();
     }
   };
-  console.log(error);
+
   return (
     <div>
       <h2 className='text-2xl text-center pt-2'>Reset Your Password</h2>

@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import AuthorTemplate from '../Utilities/AuthorTemplate';
 import Loading from '../Utilities/Loading';
 import useDateTime from '../../hooks/useDateTime';
+import { signOut } from 'firebase/auth';
 
 const ReviseManuscript = ({
   selectedManuscriptForRevising,
@@ -91,15 +92,24 @@ const ReviseManuscript = ({
         modifiedManuscript
       );
 
-      // https://final-project-server-k11k.onrender.com
       fetch('http://localhost:5000/updateRevisedManuscript', {
         method: 'put',
         headers: {
-          'content-type': 'application/json'
+          'content-type': 'application/json',
+          authorization: `Bearer ${localStorage.getItem('accessToken')}`
         },
         body: JSON.stringify(updatedManuscript)
       })
-        .then((res) => res.json())
+        .then((res) => {
+          if (res.status === 401 || res.status === 403) {
+            localStorage.removeItem('accessToken');
+            signOut(auth);
+            navigate('/unauthorizedAccess', { replace: true });
+            return;
+          } else {
+            return res.json();
+          }
+        })
         .then((data) => {
           if (data.acknowledged) {
             toast.success('Manuscript reuploaded successfully');

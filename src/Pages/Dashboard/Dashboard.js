@@ -12,8 +12,6 @@ const Dashboard = () => {
   const [userRole] = useUserRole(user?.email);
   const navigate = useNavigate();
 
-  // console.log(userRole);
-
   return (
     <div>
       <div className='bg-secondary fixed inset-y-0 w-[30%] p-[1%]'>
@@ -99,6 +97,7 @@ const Dashboard = () => {
                   <button
                     className='btn btn-primary'
                     onClick={() => {
+                      localStorage.removeItem('accessToken');
                       signOut(auth);
                       navigate('/', { replace: true });
                     }}

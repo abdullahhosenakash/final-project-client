@@ -4,6 +4,9 @@ import React, { useState } from 'react';
 import Loading from '../Utilities/Loading';
 import toast from 'react-hot-toast';
 import useDateTime from '../../hooks/useDateTime';
+import { signOut } from 'firebase/auth';
+import auth from '../../firebase.config';
+import { useNavigate } from 'react-router-dom';
 
 const Payment = ({
   selectedManuscriptForPayment,
@@ -12,6 +15,7 @@ const Payment = ({
 }) => {
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [dateTime] = useDateTime();
+  const navigate = useNavigate();
   const { manuscriptId } = selectedManuscriptForPayment || {};
 
   const handlePayment = (e) => {
@@ -22,11 +26,21 @@ const Payment = ({
     fetch(`http://localhost:5000/payment?manuscriptId=${manuscriptId}`, {
       method: 'put',
       headers: {
-        'content-type': 'application/json'
+        'content-type': 'application/json',
+        authorization: `Bearer ${localStorage.getItem('accessToken')}`
       },
       body: JSON.stringify({ payableAmount, mobileNumber, dateTime })
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (res.status === 401 || res.status === 403) {
+          localStorage.removeItem('accessToken');
+          signOut(auth);
+          navigate('/unauthorizedAccess', { replace: true });
+          return;
+        } else {
+          return res.json();
+        }
+      })
       .then((data) => {
         if (data.acknowledged) {
           toast.success('Payment Successful!');

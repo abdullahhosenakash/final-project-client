@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import auth from '../../firebase.config';
 import useUserRole from '../../hooks/useUserRole';
-import { Link, Navigate, redirect, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Document,
   PDFDownloadLink,
@@ -19,6 +19,7 @@ import Manuscript from '../Manuscript/Manuscript';
 import Payment from '../Payment/Payment';
 import PaymentStatus from '../Payment/PaymentStatus';
 import ReviseManuscript from '../ReviseManuscript/ReviseManuscript';
+import { signOut } from 'firebase/auth';
 
 Font.register({
   family: 'Roboto',
@@ -29,6 +30,7 @@ const ManuscriptsAsCoAuthor = () => {
   const [manuscripts, setManuscripts] = useState([]);
   const [user] = useAuthState(auth);
   const [userRole] = useUserRole(user?.email);
+  const navigate = useNavigate();
   const [manuscriptLoading, setManuscriptLoading] = useState(false);
   const [selectedManuscript, setSelectedManuscript] = useState({});
   const [isModified, setIsModified] = useState(false);
@@ -52,14 +54,29 @@ const ManuscriptsAsCoAuthor = () => {
         ? authorLink
         : userRole === 'editor'
         ? editorLink
-        : ''
+        : '',
+      {
+        method: 'get',
+        headers: {
+          authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        }
+      }
     )
-      .then((res) => res.json())
+      .then((res) => {
+        if (res.status === 401 || res.status === 403) {
+          localStorage.removeItem('accessToken');
+          signOut(auth);
+          navigate('/unauthorizedAccess', { replace: true });
+          return;
+        } else {
+          return res.json();
+        }
+      })
       .then((data) => {
         setManuscripts(data);
         setManuscriptLoading(false);
       });
-  }, [user, userRole, isModified]);
+  }, [user, userRole, isModified, navigate]);
 
   const styles = StyleSheet.create({
     subInfoTitle: {
@@ -138,7 +155,7 @@ const ManuscriptsAsCoAuthor = () => {
                     <Loading loadingStyles='loading-lg' />
                   </td>
                 </tr>
-              ) : manuscripts.length ? (
+              ) : manuscripts?.length ? (
                 manuscripts?.toReversed()?.map((manuscript, index) => (
                   <tr key={index}>
                     <td>

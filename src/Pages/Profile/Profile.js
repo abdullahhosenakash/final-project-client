@@ -7,6 +7,7 @@ import auth from '../../firebase.config';
 import Loading from '../Utilities/Loading';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import { signOut } from 'firebase/auth';
 
 const Profile = () => {
   const [user] = useAuthState(auth);
@@ -18,8 +19,7 @@ const Profile = () => {
   const [dataLoading, setDataLoading] = useState(false);
   const [profileUpdating, setProfileUpdating] = useState(false);
   const [isModified, setIsModified] = useState(false);
-  const [sendEmailVerification, sending, emailVerificationError] =
-    useSendEmailVerification(auth);
+  const [sendEmailVerification, sending] = useSendEmailVerification(auth);
   const navigate = useNavigate();
 
   const handleProfileUpdate = (e) => {
@@ -33,11 +33,21 @@ const Profile = () => {
     fetch(`http://localhost:5000/updateUser?userEmail=${user?.email}`, {
       method: 'put',
       headers: {
-        'content-type': 'application/json'
+        'content-type': 'application/json',
+        authorization: `Bearer ${localStorage.getItem('accessToken')}`
       },
       body: JSON.stringify(updatedProfile)
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (res.status === 401 || res.status === 403) {
+          localStorage.removeItem('accessToken');
+          signOut(auth);
+          navigate('/unauthorizedAccess', { replace: true });
+          return;
+        } else {
+          return res.json();
+        }
+      })
       .then((data) => {
         if (data.acknowledged) {
           toast.success('Profile updated successfully!');
@@ -50,8 +60,22 @@ const Profile = () => {
 
   useEffect(() => {
     setDataLoading(true);
-    fetch(`http://localhost:5000/userInfo?userEmail=${user?.email}`)
-      .then((res) => res.json())
+    fetch(`http://localhost:5000/userInfo?userEmail=${user?.email}`, {
+      method: 'get',
+      headers: {
+        authorization: `Bearer ${localStorage.getItem('accessToken')}`
+      }
+    })
+      .then((res) => {
+        if (res.status === 401 || res.status === 403) {
+          localStorage.removeItem('accessToken');
+          signOut(auth);
+          navigate('/unauthorizedAccess', { replace: true });
+          return;
+        } else {
+          return res.json();
+        }
+      })
       .then((data) => {
         if (data) {
           setFullName(data.userName);
@@ -61,7 +85,7 @@ const Profile = () => {
         }
       });
     setUserEmail(user?.email);
-  }, [user, isModified]);
+  }, [user, isModified, navigate]);
 
   const handleEmailVerify = async () => {
     const verificationMailSendSuccess = await sendEmailVerification();
@@ -71,7 +95,6 @@ const Profile = () => {
     }
   };
 
-  console.log(user?.emailVerified);
   return (
     <div>
       <h2 className='text-center text-3xl'>Profile</h2>

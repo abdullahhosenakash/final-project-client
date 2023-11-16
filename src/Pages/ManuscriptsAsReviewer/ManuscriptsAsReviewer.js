@@ -2,20 +2,20 @@ import React, { useEffect, useState } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import auth from '../../firebase.config';
 import useUserRole from '../../hooks/useUserRole';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Document,
   PDFDownloadLink,
   Page,
   Text,
   Font,
-  StyleSheet,
-  View
+  StyleSheet
 } from '@react-pdf/renderer';
 import Loading from '../Utilities/Loading';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFileArrowDown } from '@fortawesome/free-solid-svg-icons';
 import Manuscript from '../Manuscript/Manuscript';
+import { signOut } from 'firebase/auth';
 
 Font.register({
   family: 'Roboto',
@@ -29,18 +29,34 @@ const ManuscriptsAsReviewer = () => {
   const [manuscriptLoading, setManuscriptLoading] = useState(false);
   const [isModified, setIsModified] = useState(false);
   const [selectedManuscript, setSelectedManuscript] = useState({});
+  const navigate = useNavigate();
 
   useEffect(() => {
     setManuscriptLoading(true);
     fetch(
-      `http://localhost:5000/manuscriptsAsReviewer?reviewerEmail=${user?.email}`
+      `http://localhost:5000/manuscriptsAsReviewer?reviewerEmail=${user?.email}`,
+      {
+        method: 'get',
+        headers: {
+          authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        }
+      }
     )
-      .then((res) => res.json())
+      .then((res) => {
+        if (res.status === 401 || res.status === 403) {
+          localStorage.removeItem('accessToken');
+          signOut(auth);
+          navigate('/unauthorizedAccess', { replace: true });
+          return;
+        } else {
+          return res.json();
+        }
+      })
       .then((data) => {
         setManuscripts(data);
         setManuscriptLoading(false);
       });
-  }, [user, userRole, isModified]);
+  }, [user, userRole, isModified, navigate]);
 
   const styles = StyleSheet.create({
     subInfoTitle: {
@@ -105,72 +121,6 @@ const ManuscriptsAsReviewer = () => {
                                 <Text>Keywords: {manuscript.keywords}</Text>
                                 <Text>
                                   Description: {manuscript.description}
-                                </Text>
-                                <Text>Author Info: </Text>
-                                <Text style={styles.subInfoTitle}>
-                                  First Name: {manuscript.authorInfo.firstName}
-                                </Text>
-                                <Text style={styles.subInfoTitle}>
-                                  Last Name: {manuscript.authorInfo.lastName}
-                                </Text>
-                                <Text style={styles.subInfoTitle}>
-                                  Email: {manuscript.authorEmail}
-                                </Text>
-                                <Text style={styles.subInfoTitle}>
-                                  Country: {manuscript.authorInfo.country}
-                                </Text>
-                                <Text style={styles.subInfoTitle}>
-                                  Department: {manuscript.authorInfo.department}
-                                </Text>
-                                <Text style={styles.subInfoTitle}>
-                                  Institute: {manuscript.authorInfo.institute}
-                                </Text>
-                                <Text>
-                                  Author Role: {manuscript.authorRole}
-                                </Text>
-                                <Text>Author Sequence: </Text>
-                                <View style={styles.table}>
-                                  <Text
-                                    style={[
-                                      styles.tableCellHeading,
-                                      { width: '150px' }
-                                    ]}
-                                  >
-                                    Name
-                                  </Text>
-                                  <Text
-                                    style={[
-                                      styles.tableCellHeading,
-                                      { width: '250px' }
-                                    ]}
-                                  >
-                                    Email
-                                  </Text>
-                                </View>
-                                {manuscript?.authorSequence?.map(
-                                  (author, index) => (
-                                    <View style={styles.table} key={index}>
-                                      <Text
-                                        style={[
-                                          styles.tableCellData,
-                                          { width: '150px' }
-                                        ]}
-                                      >
-                                        {author.authorName}
-                                      </Text>
-                                      <Text
-                                        style={[
-                                          styles.tableCellData,
-                                          { width: '250px' }
-                                        ]}
-                                      >
-                                        {author.authorEmail}
-                                      </Text>
-                                    </View>
-                                  )
-                                )}
-                                <Text>
-                                  Funding Source: {manuscript.fundingSource}
                                 </Text>
                               </Page>
                             </Document>

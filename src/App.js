@@ -14,6 +14,7 @@ import Drafts from './Pages/Drafts/Drafts';
 import PreviewManuscript from './Pages/NewManuscript/PreviewManuscript';
 import ManuscriptsAsReviewer from './Pages/ManuscriptsAsReviewer/ManuscriptsAsReviewer';
 import NewManuscript from './Pages/NewManuscript/NewManuscript';
+import UnAuthorizedAccess from './Pages/Utilities/UnAuthorizedAccess';
 
 function App() {
   return (
@@ -84,6 +85,7 @@ function App() {
               </RequireAuth>
             }
           />
+          <Route path='unAuthorizedAccess' element={<UnAuthorizedAccess />} />
           <Route path='*' element={<NotFound />} />
         </Routes>
         <Toaster containerStyle={{ position: 'absolute' }} />

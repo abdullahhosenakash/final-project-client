@@ -12,6 +12,7 @@ import {
   uploadBytes,
   uploadBytesResumable
 } from 'firebase/storage';
+import { signOut } from 'firebase/auth';
 
 const NewManuscript = () => {
   const [user] = useAuthState(auth);
@@ -27,7 +28,6 @@ const NewManuscript = () => {
   let selectedDraft = {};
   if (location.state?.selectedDraft) {
     selectedDraft = location.state?.selectedDraft;
-    // console.log(location.state.selectedDraft);
   } else if (location.state?.manuscript) {
     const { authorInfo, ...manuscriptWithoutAuthorInfo } =
       location.state?.manuscript;
@@ -121,11 +121,21 @@ const NewManuscript = () => {
       fetch(url, {
         method: id === 'newManuscript' ? 'post' : 'put',
         headers: {
-          'content-type': 'application/json'
+          'content-type': 'application/json',
+          authorization: `Bearer ${localStorage.getItem('accessToken')}`
         },
         body: JSON.stringify(newDraft)
       })
-        .then((res) => res.json())
+        .then((res) => {
+          if (res.status === 401 || res.status === 403) {
+            localStorage.removeItem('accessToken');
+            signOut(auth);
+            navigate('/unauthorizedAccess', { replace: true });
+            return;
+          } else {
+            return res.json();
+          }
+        })
         .then((data) => {
           if (data.acknowledged) {
             toast.success('Manuscript Saved Successfully');
@@ -311,23 +321,43 @@ const NewManuscript = () => {
           dateTimeForFiles: fileDateTime
         }
       };
-      // https://final-project-server-k11k.onrender.com
       fetch('http://localhost:5000/newManuscript', {
         method: 'post',
         headers: {
-          'content-type': 'application/json'
+          'content-type': 'application/json',
+          authorization: `Bearer ${localStorage.getItem('accessToken')}`
         },
         body: JSON.stringify(newManuscript)
       })
-        .then((res) => res.json())
+        .then((res) => {
+          if (res.status === 401 || res.status === 403) {
+            localStorage.removeItem('accessToken');
+            signOut(auth);
+            navigate('/unauthorizedAccess', { replace: true });
+            return;
+          } else {
+            return res.json();
+          }
+        })
         .then((data) => {
-          console.log(data);
           if (data.acknowledged) {
             if (id !== 'newManuscript') {
               fetch(`http://localhost:5000/deleteDraft/${id}`, {
-                method: 'delete'
+                method: 'delete',
+                headers: {
+                  authorization: `Bearer ${localStorage.getItem('accessToken')}`
+                }
               })
-                .then((res) => res.json())
+                .then((res) => {
+                  if (res.status === 401 || res.status === 403) {
+                    localStorage.removeItem('accessToken');
+                    signOut(auth);
+                    navigate('/unauthorizedAccess', { replace: true });
+                    return;
+                  } else {
+                    return res.json();
+                  }
+                })
                 .then((data) => {
                   if (data.acknowledged) {
                     toast.success('Manuscript uploaded successfully');
@@ -516,7 +546,6 @@ const NewManuscript = () => {
                       setImages(filesArray);
                     }}
                     onClick={() => setImageErrorMessage('')}
-                    // defaultValue={selectedDraft.title}
                     required
                     disabled={uploading || saving}
                   />

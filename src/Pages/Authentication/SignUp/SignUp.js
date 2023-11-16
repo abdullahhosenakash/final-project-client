@@ -9,6 +9,7 @@ import {
 import auth from '../../../firebase.config';
 import { toast } from 'react-hot-toast';
 import Loading from '../../Utilities/Loading';
+import { signOut } from 'firebase/auth';
 
 const SignUp = () => {
   const [user] = useAuthState(auth);
@@ -20,9 +21,8 @@ const SignUp = () => {
   const navigate = useNavigate();
   const [createUserWithEmailAndPassword, , loading, userCreationError] =
     useCreateUserWithEmailAndPassword(auth);
-  const [updateProfile, updating, updateError] = useUpdateProfile(auth);
-  const [sendEmailVerification, sending, emailVerificationError] =
-    useSendEmailVerification(auth);
+  const [updateProfile, updating] = useUpdateProfile(auth);
+  const [sendEmailVerification, sending] = useSendEmailVerification(auth);
 
   const location = useLocation();
   const from = location.state?.from?.pathname || '/';
@@ -40,17 +40,25 @@ const SignUp = () => {
     };
 
     if (user) {
-      console.log(user);
       const newUser = { userName, userEmail, userRole };
-      // fetch('https://final-project-server-k11k.onrender.com/addUser', {
       fetch('http://localhost:5000/addUser', {
         method: 'post',
         headers: {
-          'content-type': 'application/json'
+          'content-type': 'application/json',
+          authorization: `Bearer ${localStorage.getItem('accessToken')}`
         },
         body: JSON.stringify(newUser)
       })
-        .then((res) => res.json())
+        .then((res) => {
+          if (res.status === 401 || res.status === 403) {
+            localStorage.removeItem('accessToken');
+            signOut(auth);
+            navigate('/unauthorizedAccess', { replace: true });
+            return;
+          } else {
+            return res.json();
+          }
+        })
         .then((data) => {
           updateUserProfile();
         });

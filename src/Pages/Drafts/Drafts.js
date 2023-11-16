@@ -1,33 +1,62 @@
 import React, { useEffect, useState } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import auth from '../../firebase.config';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import Loading from '../Utilities/Loading';
+import { signOut } from 'firebase/auth';
 
 const Drafts = () => {
   const [drafts, setDrafts] = useState([]);
   const [user] = useAuthState(auth);
   const [draftLoading, setDraftLoading] = useState(false);
   const [draftDeleting, setDraftDeleting] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setDraftLoading(true);
-    fetch(`http://localhost:5000/authorDrafts?authorEmail=${user?.email}`)
-      .then((res) => res.json())
+    fetch(`http://localhost:5000/authorDrafts?authorEmail=${user?.email}`, {
+      method: 'get',
+      headers: {
+        authorization: `Bearer ${localStorage.getItem('accessToken')}`
+      }
+    })
+      .then((res) => {
+        if (res.status === 401 || res.status === 403) {
+          localStorage.removeItem('accessToken');
+          signOut(auth);
+          navigate('/unauthorizedAccess', { replace: true });
+          return;
+        } else {
+          return res.json();
+        }
+      })
       .then((data) => {
         setDrafts(data);
         setDraftLoading(false);
       });
-  }, [user]);
+  }, [user, navigate]);
 
   const handleDeleteDraft = (id) => {
     setDraftDeleting(true);
-    fetch(`http://localhost:5000/deleteDraft/${id}`, { method: 'delete' })
-      .then((res) => res.json())
+    fetch(`http://localhost:5000/deleteDraft/${id}`, {
+      method: 'delete',
+      headers: {
+        authorization: `Bearer ${localStorage.getItem('accessToken')}`
+      }
+    })
+      .then((res) => {
+        if (res.status === 401 || res.status === 403) {
+          localStorage.removeItem('accessToken');
+          signOut(auth);
+          navigate('/unauthorizedAccess', { replace: true });
+          return;
+        } else {
+          return res.json();
+        }
+      })
       .then((data) => {
         if (data.acknowledged) {
-          console.log(data);
           const restDrafts = drafts.filter((draft) => draft._id !== id);
           setDrafts(restDrafts);
           toast.success('Draft deleted successfully');
