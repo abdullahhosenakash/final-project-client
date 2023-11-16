@@ -34,7 +34,7 @@ const ManuscriptsAsReviewer = () => {
   useEffect(() => {
     setManuscriptLoading(true);
     fetch(
-      `http://localhost:5000/manuscriptsAsReviewer?reviewerEmail=${user?.email}`,
+      `https://final-project-server-k11k.onrender.com/manuscriptsAsReviewer?reviewerEmail=${user?.email}`,
       {
         method: 'get',
         headers: {

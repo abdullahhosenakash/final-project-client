@@ -92,14 +92,17 @@ const ReviseManuscript = ({
         modifiedManuscript
       );
 
-      fetch('http://localhost:5000/updateRevisedManuscript', {
-        method: 'put',
-        headers: {
-          'content-type': 'application/json',
-          authorization: `Bearer ${localStorage.getItem('accessToken')}`
-        },
-        body: JSON.stringify(updatedManuscript)
-      })
+      fetch(
+        'https://final-project-server-k11k.onrender.com/updateRevisedManuscript',
+        {
+          method: 'put',
+          headers: {
+            'content-type': 'application/json',
+            authorization: `Bearer ${localStorage.getItem('accessToken')}`
+          },
+          body: JSON.stringify(updatedManuscript)
+        }
+      )
         .then((res) => {
           if (res.status === 401 || res.status === 403) {
             localStorage.removeItem('accessToken');

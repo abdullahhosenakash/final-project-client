@@ -8,12 +8,15 @@ const useUserRole = (userEmail) => {
   const navigate = useNavigate();
   useEffect(() => {
     if (userEmail) {
-      fetch(`http://localhost:5000/userRole?userEmail=${userEmail}`, {
-        method: 'get',
-        headers: {
-          authorization: `Bearer ${localStorage.getItem('accessToken')}`
+      fetch(
+        `https://final-project-server-k11k.onrender.com/userRole?userEmail=${userEmail}`,
+        {
+          method: 'get',
+          headers: {
+            authorization: `Bearer ${localStorage.getItem('accessToken')}`
+          }
         }
-      })
+      )
         .then((res) => {
           if (res.status === 401 || res.status === 403) {
             localStorage.removeItem('accessToken');

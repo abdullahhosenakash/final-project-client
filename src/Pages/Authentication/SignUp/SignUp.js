@@ -49,7 +49,7 @@ const SignUp = () => {
 
     if (user) {
       const newUser = { userName, userEmail, userRole };
-      fetch('http://localhost:5000/addUser', {
+      fetch('https://final-project-server-k11k.onrender.com/addUser', {
         method: 'post',
         headers: {
           'content-type': 'application/json',

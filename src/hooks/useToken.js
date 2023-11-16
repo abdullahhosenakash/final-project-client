@@ -8,7 +8,9 @@ const useToken = () => {
   useEffect(() => {
     const userEmail = user?.email;
     userEmail &&
-      fetch(`http://localhost:5000/user-login?userEmail=${userEmail}`)
+      fetch(
+        `https://final-project-server-k11k.onrender.com/user-login?userEmail=${userEmail}`
+      )
         .then((res) => res.json())
         .then((data) => {
           localStorage.setItem('accessToken', data?.token);

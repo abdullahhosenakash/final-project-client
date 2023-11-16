@@ -81,14 +81,17 @@ const Manuscript = ({
     e.preventDefault();
     setLoading(true);
 
-    fetch(`http://localhost:5000/forwardManuscript?objectId=${_id}`, {
-      method: 'put',
-      headers: {
-        'content-type': 'application/json',
-        authorization: `Bearer ${localStorage.getItem('accessToken')}`
-      },
-      body: JSON.stringify({ reviewers, dateTime })
-    })
+    fetch(
+      `https://final-project-server-k11k.onrender.com/forwardManuscript?objectId=${_id}`,
+      {
+        method: 'put',
+        headers: {
+          'content-type': 'application/json',
+          authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        },
+        body: JSON.stringify({ reviewers, dateTime })
+      }
+    )
       .then((res) => {
         if (res.status === 401 || res.status === 403) {
           localStorage.removeItem('accessToken');
@@ -114,14 +117,17 @@ const Manuscript = ({
     e.preventDefault();
     setLoading(true);
     const declinationMessage = e.target.declinationMessage.value;
-    fetch(`http://localhost:5000/declineManuscript?objectId=${_id}`, {
-      method: 'put',
-      headers: {
-        'content-type': 'application/json',
-        authorization: `Bearer ${localStorage.getItem('accessToken')}`
-      },
-      body: JSON.stringify({ declinationMessage })
-    })
+    fetch(
+      `https://final-project-server-k11k.onrender.com/declineManuscript?objectId=${_id}`,
+      {
+        method: 'put',
+        headers: {
+          'content-type': 'application/json',
+          authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        },
+        body: JSON.stringify({ declinationMessage })
+      }
+    )
       .then((res) => {
         if (res.status === 401 || res.status === 403) {
           localStorage.removeItem('accessToken');
@@ -148,18 +154,21 @@ const Manuscript = ({
     setLoading(true);
     const reviewerDecision = e.target.reviewerDecision.value;
     const reviewerComment = e.target.reviewerComment.value;
-    fetch(`http://localhost:5000/reviewerDecision?objectId=${_id}`, {
-      method: 'put',
-      headers: {
-        'content-type': 'application/json',
-        authorization: `Bearer ${localStorage.getItem('accessToken')}`
-      },
-      body: JSON.stringify({
-        reviewerComment,
-        reviewerDecision,
-        reviewerEmail: user?.email
-      })
-    })
+    fetch(
+      `https://final-project-server-k11k.onrender.com/reviewerDecision?objectId=${_id}`,
+      {
+        method: 'put',
+        headers: {
+          'content-type': 'application/json',
+          authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        },
+        body: JSON.stringify({
+          reviewerComment,
+          reviewerDecision,
+          reviewerEmail: user?.email
+        })
+      }
+    )
       .then((res) => {
         if (res.status === 401 || res.status === 403) {
           localStorage.removeItem('accessToken');
@@ -191,17 +200,20 @@ const Manuscript = ({
       message: editorComment,
       dateTimeForMessage
     };
-    fetch(`http://localhost:5000/finalUpdateManuscript?objectId=${_id}`, {
-      method: 'put',
-      headers: {
-        'content-type': 'application/json',
-        authorization: `Bearer ${localStorage.getItem('accessToken')}`
-      },
-      body: JSON.stringify({
-        decision: editorFinalDecision,
-        newMassage
-      })
-    })
+    fetch(
+      `https://final-project-server-k11k.onrender.com/finalUpdateManuscript?objectId=${_id}`,
+      {
+        method: 'put',
+        headers: {
+          'content-type': 'application/json',
+          authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        },
+        body: JSON.stringify({
+          decision: editorFinalDecision,
+          newMassage
+        })
+      }
+    )
       .then((res) => {
         if (res.status === 401 || res.status === 403) {
           localStorage.removeItem('accessToken');
@@ -242,7 +254,7 @@ const Manuscript = ({
       dateTimeForMessage
     };
     fetch(
-      `http://localhost:5000/manuscriptChatBox?manuscriptId=${manuscriptId}${
+      `https://final-project-server-k11k.onrender.com/manuscriptChatBox?manuscriptId=${manuscriptId}${
         userRole === 'editor' ? `&target=${chatPerson}` : ''
       }`,
       {
@@ -278,8 +290,8 @@ const Manuscript = ({
       setMessageLoading(true);
       const url =
         userRole === 'editor'
-          ? `http://localhost:5000/manuscriptMessages?manuscriptId=${manuscriptId}&userRole=${userRole}&target=${chatPerson.toLowerCase()}`
-          : `http://localhost:5000/manuscriptMessages?manuscriptId=${manuscriptId}&userRole=${userRole}`;
+          ? `https://final-project-server-k11k.onrender.com/manuscriptMessages?manuscriptId=${manuscriptId}&userRole=${userRole}&target=${chatPerson.toLowerCase()}`
+          : `https://final-project-server-k11k.onrender.com/manuscriptMessages?manuscriptId=${manuscriptId}&userRole=${userRole}`;
       fetch(url, {
         method: 'get',
         headers: {

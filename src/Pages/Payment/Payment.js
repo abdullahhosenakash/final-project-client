@@ -23,14 +23,17 @@ const Payment = ({
     setPaymentLoading(true);
     const payableAmount = e.target.payableAmount.value;
     const mobileNumber = e.target.mobileNumber.value;
-    fetch(`http://localhost:5000/payment?manuscriptId=${manuscriptId}`, {
-      method: 'put',
-      headers: {
-        'content-type': 'application/json',
-        authorization: `Bearer ${localStorage.getItem('accessToken')}`
-      },
-      body: JSON.stringify({ payableAmount, mobileNumber, dateTime })
-    })
+    fetch(
+      `https://final-project-server-k11k.onrender.com/payment?manuscriptId=${manuscriptId}`,
+      {
+        method: 'put',
+        headers: {
+          'content-type': 'application/json',
+          authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        },
+        body: JSON.stringify({ payableAmount, mobileNumber, dateTime })
+      }
+    )
       .then((res) => {
         if (res.status === 401 || res.status === 403) {
           localStorage.removeItem('accessToken');

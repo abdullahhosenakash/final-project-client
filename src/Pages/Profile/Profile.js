@@ -30,14 +30,17 @@ const Profile = () => {
       phoneNumber,
       address
     };
-    fetch(`http://localhost:5000/updateUser?userEmail=${user?.email}`, {
-      method: 'put',
-      headers: {
-        'content-type': 'application/json',
-        authorization: `Bearer ${localStorage.getItem('accessToken')}`
-      },
-      body: JSON.stringify(updatedProfile)
-    })
+    fetch(
+      `https://final-project-server-k11k.onrender.com/updateUser?userEmail=${user?.email}`,
+      {
+        method: 'put',
+        headers: {
+          'content-type': 'application/json',
+          authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        },
+        body: JSON.stringify(updatedProfile)
+      }
+    )
       .then((res) => {
         if (res.status === 401 || res.status === 403) {
           localStorage.removeItem('accessToken');
@@ -60,12 +63,15 @@ const Profile = () => {
 
   useEffect(() => {
     setDataLoading(true);
-    fetch(`http://localhost:5000/userInfo?userEmail=${user?.email}`, {
-      method: 'get',
-      headers: {
-        authorization: `Bearer ${localStorage.getItem('accessToken')}`
+    fetch(
+      `https://final-project-server-k11k.onrender.com/userInfo?userEmail=${user?.email}`,
+      {
+        method: 'get',
+        headers: {
+          authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        }
       }
-    })
+    )
       .then((res) => {
         if (res.status === 401 || res.status === 403) {
           localStorage.removeItem('accessToken');

@@ -15,12 +15,15 @@ const Drafts = () => {
 
   useEffect(() => {
     setDraftLoading(true);
-    fetch(`http://localhost:5000/authorDrafts?authorEmail=${user?.email}`, {
-      method: 'get',
-      headers: {
-        authorization: `Bearer ${localStorage.getItem('accessToken')}`
+    fetch(
+      `https://final-project-server-k11k.onrender.com/authorDrafts?authorEmail=${user?.email}`,
+      {
+        method: 'get',
+        headers: {
+          authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        }
       }
-    })
+    )
       .then((res) => {
         if (res.status === 401 || res.status === 403) {
           localStorage.removeItem('accessToken');
@@ -39,7 +42,7 @@ const Drafts = () => {
 
   const handleDeleteDraft = (id) => {
     setDraftDeleting(true);
-    fetch(`http://localhost:5000/deleteDraft/${id}`, {
+    fetch(`https://final-project-server-k11k.onrender.com/deleteDraft/${id}`, {
       method: 'delete',
       headers: {
         authorization: `Bearer ${localStorage.getItem('accessToken')}`

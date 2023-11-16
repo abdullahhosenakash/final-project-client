@@ -46,8 +46,9 @@ const ManuscriptsAsCoAuthor = () => {
 
   useEffect(() => {
     setManuscriptLoading(true);
-    const authorLink = `http://localhost:5000/authorManuscripts?authorEmail=${user?.email}`;
-    const editorLink = 'http://localhost:5000/manuscriptsAsCoAuthor';
+    const authorLink = `https://final-project-server-k11k.onrender.com/authorManuscripts?authorEmail=${user?.email}`;
+    const editorLink =
+      'https://final-project-server-k11k.onrender.com/manuscriptsAsCoAuthor';
     if (!userRole) return;
     fetch(
       userRole === 'author'

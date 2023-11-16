@@ -60,8 +60,8 @@ const PreviewManuscript = () => {
 
     const url =
       id === 'noManuscript'
-        ? 'http://localhost:5000/newDraftManuscript'
-        : `http://localhost:5000/updateDraftManuscript/${id}`;
+        ? 'https://final-project-server-k11k.onrender.com/newDraftManuscript'
+        : `https://final-project-server-k11k.onrender.com/updateDraftManuscript/${id}`;
 
     fetch(url, {
       method: id === 'noManuscript' ? 'post' : 'put',
@@ -94,7 +94,7 @@ const PreviewManuscript = () => {
     e.preventDefault();
     setUploading(true);
     const newManuscriptToBeUploaded = { ...newManuscript, dateTime };
-    fetch('http://localhost:5000/newManuscript', {
+    fetch('https://final-project-server-k11k.onrender.com/newManuscript', {
       method: 'post',
       headers: {
         'content-type': 'application/json',
@@ -115,12 +115,15 @@ const PreviewManuscript = () => {
       .then((data) => {
         if (data.acknowledged) {
           if (id !== 'noManuscript') {
-            fetch(`http://localhost:5000/deleteDraft/${id}`, {
-              method: 'delete',
-              headers: {
-                authorization: `Bearer ${localStorage.getItem('accessToken')}`
+            fetch(
+              `https://final-project-server-k11k.onrender.com/deleteDraft/${id}`,
+              {
+                method: 'delete',
+                headers: {
+                  authorization: `Bearer ${localStorage.getItem('accessToken')}`
+                }
               }
-            })
+            )
               .then((res) => {
                 if (res.status === 401 || res.status === 403) {
                   localStorage.removeItem('accessToken');
