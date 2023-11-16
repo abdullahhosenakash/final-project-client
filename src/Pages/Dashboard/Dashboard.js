@@ -97,8 +97,8 @@ const Dashboard = () => {
                   <button
                     className='btn btn-primary'
                     onClick={() => {
-                      localStorage.removeItem('accessToken');
                       signOut(auth);
+                      localStorage.removeItem('accessToken');
                       navigate('/', { replace: true });
                     }}
                   >

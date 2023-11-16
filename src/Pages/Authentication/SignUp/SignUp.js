@@ -10,6 +10,7 @@ import auth from '../../../firebase.config';
 import { toast } from 'react-hot-toast';
 import Loading from '../../Utilities/Loading';
 import { signOut } from 'firebase/auth';
+import useToken from '../../../hooks/useToken';
 
 const SignUp = () => {
   const [user] = useAuthState(auth);
@@ -19,6 +20,7 @@ const SignUp = () => {
   const [userRole, setUserRole] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
+  const [token] = useToken();
   const [createUserWithEmailAndPassword, , loading, userCreationError] =
     useCreateUserWithEmailAndPassword(auth);
   const [updateProfile, updating] = useUpdateProfile(auth);
@@ -35,7 +37,13 @@ const SignUp = () => {
         toast.success(
           'User Created Successfully. Email verification mail sent.'
         );
-        navigate(from, { replace: true });
+        if (token) {
+          navigate(from, { replace: true });
+        } else {
+          signOut(auth);
+          localStorage.removeItem('accessToken');
+          navigate('/login', { replace: true });
+        }
       }
     };
 
@@ -75,7 +83,8 @@ const SignUp = () => {
     userEmail,
     userCreationError,
     from,
-    sendEmailVerification
+    sendEmailVerification,
+    token
   ]);
 
   const handleSignUp = (e) => {

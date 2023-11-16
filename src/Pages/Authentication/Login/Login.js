@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import {
-  useAuthState,
-  useSignInWithEmailAndPassword
-} from 'react-firebase-hooks/auth';
+import { useSignInWithEmailAndPassword } from 'react-firebase-hooks/auth';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import auth from '../../../firebase.config';
 import Loading from '../../Utilities/Loading';
+import useToken from '../../../hooks/useToken';
 
 const Login = () => {
-  const [user] = useAuthState(auth);
   const navigate = useNavigate(auth);
+  const [token] = useToken();
   const location = useLocation();
   const [signInWithEmailAndPassword, , loading, error] =
     useSignInWithEmailAndPassword(auth);
@@ -32,10 +30,10 @@ const Login = () => {
       setErrorMessage('');
     }
 
-    if (user) {
+    if (token) {
       navigate(from, { replace: true });
     }
-  }, [user, navigate, from, error]);
+  }, [token, navigate, from, error]);
 
   return (
     <div>
