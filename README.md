@@ -3,7 +3,7 @@
 This is an unauthorized project of Journal of Science and Technology of Hajee Mohammad Danesh Science and Technology University, Dinajpur-5200, Bangladesh. Unauthorized because this is only testing and learning purpose project made with React JS, Node JS, Express JS and MongoDB (MERN). The project makes it easy to submit manuscripts by the authors, organize and forward the manuscripts to the reviewers and review them by the reviewers.
 
 - Live Website: [Journal of Science and Technology](https://hstu-final-project.web.app/)
-  Here is the [Server Side Repository](https://github.com/abdullahhosenakash/final-project-server)
+- Here is the [Server Side Repository](https://github.com/abdullahhosenakash/final-project-server)
 
 ## What the project has:
 
