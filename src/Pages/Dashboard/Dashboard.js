@@ -96,8 +96,8 @@ const Dashboard = () => {
                   </CustomNavLink>
                   <button
                     className='btn btn-primary'
-                    onClick={() => {
-                      signOut(auth);
+                    onClick={async () => {
+                      await signOut(auth);
                       localStorage.removeItem('accessToken');
                       navigate('/', { replace: true });
                     }}

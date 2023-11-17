@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSendPasswordResetEmail } from 'react-firebase-hooks/auth';
 import auth from '../../../firebase.config';
 import { toast } from 'react-hot-toast';
@@ -6,7 +6,9 @@ import { Link } from 'react-router-dom';
 import Loading from '../../Utilities/Loading';
 
 const PasswordReset = () => {
-  const [sendPasswordResetEmail, sending] = useSendPasswordResetEmail(auth);
+  const [sendPasswordResetEmail, sending, passwordResetError] =
+    useSendPasswordResetEmail(auth);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
@@ -17,6 +19,20 @@ const PasswordReset = () => {
       e.target.reset();
     }
   };
+
+  useEffect(() => {
+    if (
+      passwordResetError?.message === 'Firebase: Error (auth/user-not-found).'
+    ) {
+      setErrorMessage('User not found');
+    } else if (
+      passwordResetError?.message === 'Firebase: Error (auth/invalid-email).'
+    ) {
+      setErrorMessage('Invalid Email');
+    } else if (passwordResetError?.message) {
+      setErrorMessage(passwordResetError?.message);
+    }
+  }, [passwordResetError]);
 
   return (
     <div>
@@ -39,6 +55,7 @@ const PasswordReset = () => {
                   required
                   disabled={sending}
                   autoComplete='off'
+                  onChange={() => setErrorMessage('')}
                 />
                 <label
                   htmlFor='userEmail'
@@ -47,6 +64,11 @@ const PasswordReset = () => {
                   Email
                 </label>
               </div>
+              {errorMessage && (
+                <p className='text-sm text-center text-red-700 m-0 pt-1'>
+                  {errorMessage}
+                </p>
+              )}
             </div>
             <div className='form-control'>
               <button

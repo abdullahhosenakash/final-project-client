@@ -10,12 +10,14 @@ import send from '../../assets/send.png';
 import useCurrentTime from '../../hooks/useCurrentTime';
 import { signOut } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
+import UpdateProfile from '../Utilities/UpdateProfile';
 
 const Manuscript = ({
   selectedManuscript,
   isModified = false,
   setIsModified = ''
 }) => {
+  UpdateProfile();
   const [user] = useAuthState(auth);
   const [userRole] = useUserRole(user?.email);
   const [reviewers, setReviewers] = useState([]);

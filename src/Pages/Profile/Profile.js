@@ -247,6 +247,11 @@ const Profile = () => {
               Refresh Now
             </button>
           </p>
+          {(!address || !phoneNumber || !user?.emailVerified) && (
+            <p className='text-4xl text-red-500 text-center'>
+              You must update your profile first
+            </p>
+          )}
         </>
       )}
     </div>

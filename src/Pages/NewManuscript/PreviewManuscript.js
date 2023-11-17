@@ -4,8 +4,10 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Loading from '../Utilities/Loading';
 import { signOut } from 'firebase/auth';
 import auth from '../../firebase.config';
+import UpdateProfile from '../Utilities/UpdateProfile';
 
 const PreviewManuscript = () => {
+  UpdateProfile();
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const location = useLocation();

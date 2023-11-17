@@ -20,6 +20,7 @@ import Payment from '../Payment/Payment';
 import PaymentStatus from '../Payment/PaymentStatus';
 import ReviseManuscript from '../ReviseManuscript/ReviseManuscript';
 import { signOut } from 'firebase/auth';
+import UpdateProfile from '../Utilities/UpdateProfile';
 
 Font.register({
   family: 'Roboto',
@@ -27,6 +28,7 @@ Font.register({
 });
 
 const ManuscriptsAsCoAuthor = () => {
+  UpdateProfile();
   const [manuscripts, setManuscripts] = useState([]);
   const [user] = useAuthState(auth);
   const [userRole] = useUserRole(user?.email);

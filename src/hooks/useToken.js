@@ -4,9 +4,11 @@ import auth from '../firebase.config';
 
 const useToken = () => {
   const [token, setToken] = useState('');
+  const [tokenLoading, setTokenLoading] = useState(false);
   const [user] = useAuthState(auth);
   useEffect(() => {
     const userEmail = user?.email;
+    setTokenLoading(true);
     userEmail &&
       fetch(
         `https://final-project-server-k11k.onrender.com/user-login?userEmail=${userEmail}`
@@ -15,9 +17,10 @@ const useToken = () => {
         .then((data) => {
           localStorage.setItem('accessToken', data?.token);
           setToken(data?.token);
+          setTokenLoading(false);
         });
   }, [user]);
-  return [token];
+  return [token, tokenLoading];
 };
 
 export default useToken;

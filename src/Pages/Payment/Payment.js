@@ -7,12 +7,14 @@ import useDateTime from '../../hooks/useDateTime';
 import { signOut } from 'firebase/auth';
 import auth from '../../firebase.config';
 import { useNavigate } from 'react-router-dom';
+import UpdateProfile from '../Utilities/UpdateProfile';
 
 const Payment = ({
   selectedManuscriptForPayment,
   isModified = false,
   setIsModified = ''
 }) => {
+  UpdateProfile();
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [dateTime] = useDateTime();
   const navigate = useNavigate();

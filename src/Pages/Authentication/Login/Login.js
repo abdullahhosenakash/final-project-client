@@ -7,7 +7,7 @@ import useToken from '../../../hooks/useToken';
 
 const Login = () => {
   const navigate = useNavigate(auth);
-  const [token] = useToken();
+  const [token, tokenLoading] = useToken();
   const location = useLocation();
   const [signInWithEmailAndPassword, , loading, error] =
     useSignInWithEmailAndPassword(auth);
@@ -30,10 +30,10 @@ const Login = () => {
       setErrorMessage('');
     }
 
-    if (token) {
+    if (!tokenLoading && token) {
       navigate(from, { replace: true });
     }
-  }, [token, navigate, from, error]);
+  }, [token, tokenLoading, navigate, from, error]);
 
   return (
     <div>

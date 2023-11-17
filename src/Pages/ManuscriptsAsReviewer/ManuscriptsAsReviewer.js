@@ -16,6 +16,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFileArrowDown } from '@fortawesome/free-solid-svg-icons';
 import Manuscript from '../Manuscript/Manuscript';
 import { signOut } from 'firebase/auth';
+import UpdateProfile from '../Utilities/UpdateProfile';
 
 Font.register({
   family: 'Roboto',
@@ -23,6 +24,7 @@ Font.register({
 });
 
 const ManuscriptsAsReviewer = () => {
+  UpdateProfile();
   const [manuscripts, setManuscripts] = useState([]);
   const [user] = useAuthState(auth);
   const [userRole] = useUserRole(user?.email);

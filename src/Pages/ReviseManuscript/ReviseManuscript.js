@@ -7,6 +7,7 @@ import AuthorTemplate from '../Utilities/AuthorTemplate';
 import Loading from '../Utilities/Loading';
 import useDateTime from '../../hooks/useDateTime';
 import { signOut } from 'firebase/auth';
+import UpdateProfile from '../Utilities/UpdateProfile';
 
 const ReviseManuscript = ({
   selectedManuscriptForRevising,
@@ -14,6 +15,7 @@ const ReviseManuscript = ({
   isModified = false,
   setIsModified = ''
 }) => {
+  UpdateProfile();
   const [user] = useAuthState(auth);
   const [errorMessage, setErrorMessage] = useState('');
   const [keywordError, setKeywordError] = useState('');

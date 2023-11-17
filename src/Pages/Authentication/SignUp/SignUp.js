@@ -20,7 +20,7 @@ const SignUp = () => {
   const [userRole, setUserRole] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
-  const [token] = useToken();
+  const [token, tokenLoading] = useToken();
   const [createUserWithEmailAndPassword, , loading, userCreationError] =
     useCreateUserWithEmailAndPassword(auth);
   const [updateProfile, updating] = useUpdateProfile(auth);
@@ -47,7 +47,7 @@ const SignUp = () => {
       }
     };
 
-    if (user) {
+    if (token) {
       const newUser = { userName, userEmail, userRole };
       fetch('https://final-project-server-k11k.onrender.com/addUser', {
         method: 'post',

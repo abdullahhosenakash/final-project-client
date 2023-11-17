@@ -2,12 +2,14 @@ import { signOut } from 'firebase/auth';
 import { useEffect, useState } from 'react';
 import auth from '../firebase.config';
 import { useNavigate } from 'react-router-dom';
+import useToken from './useToken';
 
 const useUserRole = (userEmail) => {
   const [userRole, setUserRole] = useState('');
   const navigate = useNavigate();
+  const [token, tokenLoading] = useToken();
   useEffect(() => {
-    if (userEmail) {
+    if (!tokenLoading && token && userEmail) {
       fetch(
         `https://final-project-server-k11k.onrender.com/userRole?userEmail=${userEmail}`,
         {
@@ -35,7 +37,7 @@ const useUserRole = (userEmail) => {
     } else {
       setUserRole('');
     }
-  }, [userEmail, navigate]);
+  }, [userEmail, navigate, token, tokenLoading]);
   return [userRole];
 };
 

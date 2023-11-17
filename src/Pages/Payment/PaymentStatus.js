@@ -1,6 +1,8 @@
 import React from 'react';
+import UpdateProfile from '../Utilities/UpdateProfile';
 
 const PaymentStatus = ({ selectedManuscriptForPaymentStatus }) => {
+  UpdateProfile();
   const { manuscriptId, title, paperStatus, decision, payment } =
     selectedManuscriptForPaymentStatus || {};
 

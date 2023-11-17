@@ -13,8 +13,10 @@ import {
   uploadBytesResumable
 } from 'firebase/storage';
 import { signOut } from 'firebase/auth';
+import UpdateProfile from '../Utilities/UpdateProfile';
 
 const NewManuscript = () => {
+  UpdateProfile();
   const [user] = useAuthState(auth);
   const [errorMessage, setErrorMessage] = useState('');
   const [draftError, setDraftError] = useState('');
@@ -412,7 +414,7 @@ const NewManuscript = () => {
       </h2>
       <form onSubmit={(e) => handleUploadManuscript(e)}>
         <div
-          className={`card mx-auto w-full max-w-3xl shadow-2xl bg-base-100 mb-10 ${
+          className={`card mx-auto w-full max-w-3xl shadow-2xl bg-base-100 mb-12 ${
             (uploading || saving) && '!opacity-50'
           }`}
         >
@@ -941,13 +943,20 @@ const NewManuscript = () => {
               <span className='text-red-700 text-center'>{keywordError}</span>
               <span className='text-red-700'>{draftError}</span>
               <span className='text-red-700'>{previewError}</span>
+              {uploading && (
+                <p className='text-lg text-center text-green-500 m-0 py-0'>
+                  File uploading may take some time. Please wait.
+                </p>
+              )}
             </div>
 
             {/* ----------------------actions---------------------- */}
             <div className='form-control'>
-              <p className='text-sm text-center text-red-700 m-0 py-2'>
-                {errorMessage}
-              </p>
+              {errorMessage && (
+                <p className='text-sm text-center text-red-700 m-0 py-2'>
+                  {errorMessage}
+                </p>
+              )}
               <div className='flex justify-around'>
                 <button
                   className='btn btn-primary w-[32%] disabled:bg-slate-500'

@@ -5,8 +5,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import Loading from '../Utilities/Loading';
 import { signOut } from 'firebase/auth';
+import UpdateProfile from '../Utilities/UpdateProfile';
 
 const Drafts = () => {
+  UpdateProfile();
   const [drafts, setDrafts] = useState([]);
   const [user] = useAuthState(auth);
   const [draftLoading, setDraftLoading] = useState(false);
