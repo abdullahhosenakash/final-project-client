@@ -31,7 +31,7 @@ const Profile = () => {
       address
     };
     fetch(
-      `https://final-project-server-k11k.onrender.com/updateUser?userEmail=${user?.email}`,
+      `https://final-project-server-g2abv57e2-abdullah-hosen-akashs-projects.vercel.app/updateUser?userEmail=${user?.email}`,
       {
         method: 'put',
         headers: {
@@ -64,7 +64,7 @@ const Profile = () => {
   useEffect(() => {
     setDataLoading(true);
     fetch(
-      `https://final-project-server-k11k.onrender.com/userInfo?userEmail=${user?.email}`,
+      `https://final-project-server-g2abv57e2-abdullah-hosen-akashs-projects.vercel.app/userInfo?userEmail=${user?.email}`,
       {
         method: 'get',
         headers: {

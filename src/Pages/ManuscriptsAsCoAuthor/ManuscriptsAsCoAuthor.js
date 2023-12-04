@@ -48,9 +48,9 @@ const ManuscriptsAsCoAuthor = () => {
 
   useEffect(() => {
     setManuscriptLoading(true);
-    const authorLink = `https://final-project-server-k11k.onrender.com/authorManuscripts?authorEmail=${user?.email}`;
+    const authorLink = `https://final-project-server-g2abv57e2-abdullah-hosen-akashs-projects.vercel.app/authorManuscripts?authorEmail=${user?.email}`;
     const editorLink =
-      'https://final-project-server-k11k.onrender.com/manuscriptsAsCoAuthor';
+      'https://final-project-server-g2abv57e2-abdullah-hosen-akashs-projects.vercel.app/manuscriptsAsCoAuthor';
     if (!userRole) return;
     fetch(
       userRole === 'author'

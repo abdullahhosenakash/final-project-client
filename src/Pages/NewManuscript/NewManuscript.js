@@ -117,8 +117,8 @@ const NewManuscript = () => {
         : draftManuscript;
       const url =
         id === 'newManuscript'
-          ? 'https://final-project-server-k11k.onrender.com/newDraftManuscript'
-          : `https://final-project-server-k11k.onrender.com/updateDraftManuscript/${id}`;
+          ? 'https://final-project-server-g2abv57e2-abdullah-hosen-akashs-projects.vercel.app/newDraftManuscript'
+          : `https://final-project-server-g2abv57e2-abdullah-hosen-akashs-projects.vercel.app/updateDraftManuscript/${id}`;
 
       fetch(url, {
         method: id === 'newManuscript' ? 'post' : 'put',
@@ -323,14 +323,17 @@ const NewManuscript = () => {
           dateTimeForFiles: fileDateTime
         }
       };
-      fetch('https://final-project-server-k11k.onrender.com/newManuscript', {
-        method: 'post',
-        headers: {
-          'content-type': 'application/json',
-          authorization: `Bearer ${localStorage.getItem('accessToken')}`
-        },
-        body: JSON.stringify(newManuscript)
-      })
+      fetch(
+        'https://final-project-server-g2abv57e2-abdullah-hosen-akashs-projects.vercel.app/newManuscript',
+        {
+          method: 'post',
+          headers: {
+            'content-type': 'application/json',
+            authorization: `Bearer ${localStorage.getItem('accessToken')}`
+          },
+          body: JSON.stringify(newManuscript)
+        }
+      )
         .then((res) => {
           if (res.status === 401 || res.status === 403) {
             localStorage.removeItem('accessToken');
@@ -345,7 +348,7 @@ const NewManuscript = () => {
           if (data.acknowledged) {
             if (id !== 'newManuscript') {
               fetch(
-                `https://final-project-server-k11k.onrender.com/deleteDraft/${id}`,
+                `https://final-project-server-g2abv57e2-abdullah-hosen-akashs-projects.vercel.app/deleteDraft/${id}`,
                 {
                   method: 'delete',
                   headers: {

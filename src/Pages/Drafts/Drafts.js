@@ -18,7 +18,7 @@ const Drafts = () => {
   useEffect(() => {
     setDraftLoading(true);
     fetch(
-      `https://final-project-server-k11k.onrender.com/authorDrafts?authorEmail=${user?.email}`,
+      `https://final-project-server-g2abv57e2-abdullah-hosen-akashs-projects.vercel.app/authorDrafts?authorEmail=${user?.email}`,
       {
         method: 'get',
         headers: {
@@ -44,12 +44,15 @@ const Drafts = () => {
 
   const handleDeleteDraft = (id) => {
     setDraftDeleting(true);
-    fetch(`https://final-project-server-k11k.onrender.com/deleteDraft/${id}`, {
-      method: 'delete',
-      headers: {
-        authorization: `Bearer ${localStorage.getItem('accessToken')}`
+    fetch(
+      `https://final-project-server-g2abv57e2-abdullah-hosen-akashs-projects.vercel.app/deleteDraft/${id}`,
+      {
+        method: 'delete',
+        headers: {
+          authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        }
       }
-    })
+    )
       .then((res) => {
         if (res.status === 401 || res.status === 403) {
           localStorage.removeItem('accessToken');

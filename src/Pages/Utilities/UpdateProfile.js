@@ -15,7 +15,7 @@ const UpdateProfile = () => {
         navigate('/profile', { replace: true });
       } else {
         fetch(
-          `https://final-project-server-k11k.onrender.com/userInfo?userEmail=${user?.email}`,
+          `https://final-project-server-g2abv57e2-abdullah-hosen-akashs-projects.vercel.app/userInfo?userEmail=${user?.email}`,
           {
             method: 'get',
             headers: {

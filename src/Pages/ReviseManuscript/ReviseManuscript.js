@@ -95,7 +95,7 @@ const ReviseManuscript = ({
       );
 
       fetch(
-        'https://final-project-server-k11k.onrender.com/updateRevisedManuscript',
+        'https://final-project-server-g2abv57e2-abdullah-hosen-akashs-projects.vercel.app/updateRevisedManuscript',
         {
           method: 'put',
           headers: {

@@ -26,7 +26,7 @@ const Payment = ({
     const payableAmount = e.target.payableAmount.value;
     const mobileNumber = e.target.mobileNumber.value;
     fetch(
-      `https://final-project-server-k11k.onrender.com/payment?manuscriptId=${manuscriptId}`,
+      `https://final-project-server-g2abv57e2-abdullah-hosen-akashs-projects.vercel.app/payment?manuscriptId=${manuscriptId}`,
       {
         method: 'put',
         headers: {
