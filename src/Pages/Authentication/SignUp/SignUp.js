@@ -49,17 +49,14 @@ const SignUp = () => {
 
     if (token) {
       const newUser = { userName, userEmail, userRole };
-      fetch(
-        'https://final-project-server-g2abv57e2-abdullah-hosen-akashs-projects.vercel.app/addUser',
-        {
-          method: 'post',
-          headers: {
-            'content-type': 'application/json',
-            authorization: `Bearer ${localStorage.getItem('accessToken')}`
-          },
-          body: JSON.stringify(newUser)
-        }
-      )
+      fetch('https://final-project-server-liard.vercel.app/addUser', {
+        method: 'post',
+        headers: {
+          'content-type': 'application/json',
+          authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        },
+        body: JSON.stringify(newUser)
+      })
         .then((res) => {
           if (res.status === 401 || res.status === 403) {
             localStorage.removeItem('accessToken');

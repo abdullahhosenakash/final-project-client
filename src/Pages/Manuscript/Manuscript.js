@@ -84,7 +84,7 @@ const Manuscript = ({
     setLoading(true);
 
     fetch(
-      `https://final-project-server-g2abv57e2-abdullah-hosen-akashs-projects.vercel.app/forwardManuscript?objectId=${_id}`,
+      `https://final-project-server-liard.vercel.app/forwardManuscript?objectId=${_id}`,
       {
         method: 'put',
         headers: {
@@ -120,7 +120,7 @@ const Manuscript = ({
     setLoading(true);
     const declinationMessage = e.target.declinationMessage.value;
     fetch(
-      `https://final-project-server-g2abv57e2-abdullah-hosen-akashs-projects.vercel.app/declineManuscript?objectId=${_id}`,
+      `https://final-project-server-liard.vercel.app/declineManuscript?objectId=${_id}`,
       {
         method: 'put',
         headers: {
@@ -157,7 +157,7 @@ const Manuscript = ({
     const reviewerDecision = e.target.reviewerDecision.value;
     const reviewerComment = e.target.reviewerComment.value;
     fetch(
-      `https://final-project-server-g2abv57e2-abdullah-hosen-akashs-projects.vercel.app/reviewerDecision?objectId=${_id}`,
+      `https://final-project-server-liard.vercel.app/reviewerDecision?objectId=${_id}`,
       {
         method: 'put',
         headers: {
@@ -203,7 +203,7 @@ const Manuscript = ({
       dateTimeForMessage
     };
     fetch(
-      `https://final-project-server-g2abv57e2-abdullah-hosen-akashs-projects.vercel.app/finalUpdateManuscript?objectId=${_id}`,
+      `https://final-project-server-liard.vercel.app/finalUpdateManuscript?objectId=${_id}`,
       {
         method: 'put',
         headers: {
@@ -256,7 +256,7 @@ const Manuscript = ({
       dateTimeForMessage
     };
     fetch(
-      `https://final-project-server-g2abv57e2-abdullah-hosen-akashs-projects.vercel.app/manuscriptChatBox?manuscriptId=${manuscriptId}${
+      `https://final-project-server-liard.vercel.app/manuscriptChatBox?manuscriptId=${manuscriptId}${
         userRole === 'editor' ? `&target=${chatPerson}` : ''
       }`,
       {
@@ -292,8 +292,8 @@ const Manuscript = ({
       setMessageLoading(true);
       const url =
         userRole === 'editor'
-          ? `https://final-project-server-g2abv57e2-abdullah-hosen-akashs-projects.vercel.app/manuscriptMessages?manuscriptId=${manuscriptId}&userRole=${userRole}&target=${chatPerson.toLowerCase()}`
-          : `https://final-project-server-g2abv57e2-abdullah-hosen-akashs-projects.vercel.app/manuscriptMessages?manuscriptId=${manuscriptId}&userRole=${userRole}`;
+          ? `https://final-project-server-liard.vercel.app/manuscriptMessages?manuscriptId=${manuscriptId}&userRole=${userRole}&target=${chatPerson.toLowerCase()}`
+          : `https://final-project-server-liard.vercel.app/manuscriptMessages?manuscriptId=${manuscriptId}&userRole=${userRole}`;
       fetch(url, {
         method: 'get',
         headers: {

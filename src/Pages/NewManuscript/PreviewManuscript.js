@@ -62,8 +62,8 @@ const PreviewManuscript = () => {
 
     const url =
       id === 'noManuscript'
-        ? 'https://final-project-server-g2abv57e2-abdullah-hosen-akashs-projects.vercel.app/newDraftManuscript'
-        : `https://final-project-server-g2abv57e2-abdullah-hosen-akashs-projects.vercel.app/updateDraftManuscript/${id}`;
+        ? 'https://final-project-server-liard.vercel.app/newDraftManuscript'
+        : `https://final-project-server-liard.vercel.app/updateDraftManuscript/${id}`;
 
     fetch(url, {
       method: id === 'noManuscript' ? 'post' : 'put',
@@ -96,17 +96,14 @@ const PreviewManuscript = () => {
     e.preventDefault();
     setUploading(true);
     const newManuscriptToBeUploaded = { ...newManuscript, dateTime };
-    fetch(
-      'https://final-project-server-g2abv57e2-abdullah-hosen-akashs-projects.vercel.app/newManuscript',
-      {
-        method: 'post',
-        headers: {
-          'content-type': 'application/json',
-          authorization: `Bearer ${localStorage.getItem('accessToken')}`
-        },
-        body: JSON.stringify(newManuscriptToBeUploaded)
-      }
-    )
+    fetch('https://final-project-server-liard.vercel.app/newManuscript', {
+      method: 'post',
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${localStorage.getItem('accessToken')}`
+      },
+      body: JSON.stringify(newManuscriptToBeUploaded)
+    })
       .then((res) => {
         if (res.status === 401 || res.status === 403) {
           localStorage.removeItem('accessToken');
@@ -121,7 +118,7 @@ const PreviewManuscript = () => {
         if (data.acknowledged) {
           if (id !== 'noManuscript') {
             fetch(
-              `https://final-project-server-g2abv57e2-abdullah-hosen-akashs-projects.vercel.app/deleteDraft/${id}`,
+              `https://final-project-server-liard.vercel.app/deleteDraft/${id}`,
               {
                 method: 'delete',
                 headers: {
